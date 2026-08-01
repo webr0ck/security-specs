@@ -26,6 +26,11 @@ changelog: "v3 (2026-06-27): added §3 Threat Model, §1.6 Design Trade-offs, §
 > reference implementation that **skip** with the exact module to write. Nothing
 > in that suite reports green for a mechanism that does not exist. If you want
 > the part that demonstrably works today, read SPEC-0001 instead.
+>
+> The per-section coverage table is generated from that suite and lives at
+> [`proxy/tests/spec0002/STATUS.md`](https://github.com/webr0ck/mcp-security-platform/blob/main/proxy/tests/spec0002/STATUS.md)
+> in the reference implementation. It is the authoritative answer to "is §N wired
+> into the request path?" - this document states intent, that file states fact.
 
 ---
 
@@ -2375,7 +2380,9 @@ This appendix provides a machine-checkable implementation checklist. Each item r
 
 ## Appendix B. Test Vectors
 
-This appendix provides minimal test vectors for verifying implementation correctness. These are normative targets for a conformant implementation of §5-§7; at the time of this draft they are specification-level vectors, not a record of a passing suite. (The reference implementation currently covers the §4.2 signed-envelope substrate only - see the Implementation Status note in §1.5. A `tests/rfc0002/` suite covering the vectors below is planned alongside the §5-§7 implementation.)
+This appendix provides minimal test vectors for verifying implementation correctness. These are normative targets for a conformant implementation of §5-§7.
+
+**Executable form.** These vectors are run as a suite against a spec oracle at [`proxy/tests/spec0002/test_appendix_b_vectors.py`](https://github.com/webr0ck/mcp-security-platform/blob/main/proxy/tests/spec0002/test_appendix_b_vectors.py) in the reference implementation. Read what that does and does not prove: it evaluates the rows below against an oracle implementing this paper's algorithms, so it shows the normative logic is internally self-consistent - **not** that the gateway enforces it. A failure there means this specification is wrong (or the oracle drifted from it). Whether a given section is wired into the live request path is answered only by [`STATUS.md`](https://github.com/webr0ck/mcp-security-platform/blob/main/proxy/tests/spec0002/STATUS.md), and today §5-§7 answer "no".
 
 ### B.1. Content Class Policy Evaluation
 
