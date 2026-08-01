@@ -4,20 +4,20 @@ status: Community Draft v0.3 (revision)
 author: Alexander Romanov
 date: 2026-06-26
 revised: 2026-06-27
-extends: MCP SEP-1913 — Trust and Sensitivity Annotations (PR #1913)
+extends: MCP SEP-1913 - Trust and Sensitivity Annotations (PR #1913)
 updates: none
 reference_impl: github.com/webr0ck/mcp-security-platform
-implementation_status: "§4.2 signed-envelope substrate implemented in the reference implementation at github.com/webr0ck/mcp-security-platform; §5 content classification, §6 federation, and §7 universal AI provenance are SPECIFIED but NOT YET IMPLEMENTED — see Implementation Status note in §1."
-changelog: "v3 (2026-06-27): added §3 Threat Model, §1.6 Design Trade-offs, §8.2 Version Negotiation, §8.5 Versioning Policy, §9.8–9.11 security subsections, §10 Privacy Considerations, §14 Open Issues, Appendix D Deployment Scenarios. Corrected BLP/Biba property attributions. Upgraded [BLP73]/[Biba77] to primary MITRE sources. Full section renumbering."
+implementation_status: "§4.2 signed-envelope substrate implemented in the reference implementation at github.com/webr0ck/mcp-security-platform; §5 content classification, §6 federation, and §7 universal AI provenance are SPECIFIED but NOT YET IMPLEMENTED - see Implementation Status note in §1."
+changelog: "v3 (2026-06-27): added §3 Threat Model, §1.6 Design Trade-offs, §8.2 Version Negotiation, §8.5 Versioning Policy, §9.8-9.11 security subsections, §10 Privacy Considerations, §14 Open Issues, Appendix D Deployment Scenarios. Corrected BLP/Biba property attributions. Upgraded [BLP73]/[Biba77] to primary MITRE sources. Full section renumbering."
 ---
 
-# SPEC-0002 — Content Classification, Federated Trust, and Universal AI Provenance
+# SPEC-0002 - Content Classification, Federated Trust, and Universal AI Provenance
 
-> **Read this first — what is built and what is not.**
+> **Read this first - what is built and what is not.**
 >
 > | Section | Mechanism | Status |
 > |---|---|---|
-> | §4.2 | Signed trust envelope | **Implemented** — see [SPEC-0001](0001-mcp-signed-trust-envelope.md) and the reference gateway |
+> | §4.2 | Signed trust envelope | **Implemented** - see [SPEC-0001](0001-mcp-signed-trust-envelope.md) and the reference gateway |
 > | §5 | Content classification (Bell-LaPadula axis) | Specified only |
 > | §6 | Federated trust (signed trust list, transparency log) | Specified only |
 > | §7 | Artifact Provenance Envelope / C2PA interop | Specified only |
@@ -31,13 +31,13 @@ changelog: "v3 (2026-06-27): added §3 Threat Model, §1.6 Design Trade-offs, §
 
 ## Abstract
 
-SEP-1913 defines a vocabulary of trust and sensitivity annotations for MCP tool results — hint annotations (`sensitiveHint`, `privateHint`, `openWorldHint`, `maliciousActivityHint`) and an `attribution` field. (This document derives a five-level source-trust tier — `untrustedPublic` through `system` — from those hints; see §4.2.2. The tiers are this extension's integrity model, not SEP-1913 field values.) It does not specify how those annotations can be made *verifiable* across process or organizational boundaries, how content type (not just source trustworthiness) should influence data flow policy, how trust labels should compose across multiple gateways, or how provenance should extend to AI-generated artifacts beyond MCP tool calls.
+SEP-1913 defines a vocabulary of trust and sensitivity annotations for MCP tool results - hint annotations (`sensitiveHint`, `privateHint`, `openWorldHint`, `maliciousActivityHint`) and an `attribution` field. (This document derives a five-level source-trust tier - `untrustedPublic` through `system` - from those hints; see §4.2.2. The tiers are this extension's integrity model, not SEP-1913 field values.) It does not specify how those annotations can be made *verifiable* across process or organizational boundaries, how content type (not just source trustworthiness) should influence data flow policy, how trust labels should compose across multiple gateways, or how provenance should extend to AI-generated artifacts beyond MCP tool calls.
 
 This document specifies four mechanisms across two scopes:
 
-**MCP-specific (§4–§6):** (1) A signed per-invocation trust envelope that makes SEP-1913 labels cryptographically verifiable, binding each label to a certificate profile and a content hash so a downstream consumer that did not produce the label can validate it; (2) a MIME-inspired content classification system adding a Bell-LaPadula confidentiality axis orthogonal to Biba integrity; (3) a federated trust architecture extending single-gateway deployments to multi-organization scenarios using a signed trust list and transparency log.
+**MCP-specific (§4-§6):** (1) A signed per-invocation trust envelope that makes SEP-1913 labels cryptographically verifiable, binding each label to a certificate profile and a content hash so a downstream consumer that did not produce the label can validate it; (2) a MIME-inspired content classification system adding a Bell-LaPadula confidentiality axis orthogonal to Biba integrity; (3) a federated trust architecture extending single-gateway deployments to multi-organization scenarios using a signed trust list and transparency log.
 
-**MCP-independent (§7):** (4) A generalized Artifact Provenance Envelope (APE) — a signed provenance format for any AI-generated artifact that exists outside the MCP wire: files written to disk, code committed to repositories, documents sent by agents, pipeline reports. APE uses the same signing infrastructure as mechanisms (1)–(3) but is not bound to MCP protocol objects. It is designed for interoperability with C2PA and is applicable to any AI agent framework, not only MCP-based systems.
+**MCP-independent (§7):** (4) A generalized Artifact Provenance Envelope (APE) - a signed provenance format for any AI-generated artifact that exists outside the MCP wire: files written to disk, code committed to repositories, documents sent by agents, pipeline reports. APE uses the same signing infrastructure as mechanisms (1)-(3) but is not bound to MCP protocol objects. It is designed for interoperability with C2PA and is applicable to any AI agent framework, not only MCP-based systems.
 
 All four mechanisms are backward-compatible with SEP-1913 and with deployments that implement only a subset.
 
@@ -146,11 +146,11 @@ This foundation is necessary but not sufficient. Three gaps remain after the sig
 
 ### 1.1. Problem 1: Content Classes Are Invisible
 
-The Biba integrity model (implemented in the signed envelope mechanism — see §4.2) answers one question: *how trustworthy is the source of this data?* It does not answer a second, orthogonal question: *what kind of data is this?*
+The Biba integrity model (implemented in the signed envelope mechanism - see §4.2) answers one question: *how trustworthy is the source of this data?* It does not answer a second, orthogonal question: *what kind of data is this?*
 
-A web search result (integrity rank 1, trustedPublic) and a PII record (integrity rank 2, internal) may have the same or similar integrity labels, but they should flow to completely different sinks under completely different policies. A `financial/trade-order` must never be driven by a `search-result/web` input regardless of integrity rank — the content class itself is a policy input, independent of source trustworthiness.
+A web search result (integrity rank 1, trustedPublic) and a PII record (integrity rank 2, internal) may have the same or similar integrity labels, but they should flow to completely different sinks under completely different policies. A `financial/trade-order` must never be driven by a `search-result/web` input regardless of integrity rank - the content class itself is a policy input, independent of source trustworthiness.
 
-The missing layer is a BLP-style confidentiality axis: classification of *what the data is* rather than *where it came from*. Bell-LaPadula's "no write down" confidentiality rule — high-classification data must not flow to low-classification sinks — maps directly onto the MCP problem: `pii/ssn` must not flow to a logging sink; `financial/trade-order` must not be composed from `external-content/raw` inputs.
+The missing layer is a BLP-style confidentiality axis: classification of *what the data is* rather than *where it came from*. Bell-LaPadula's "no write down" confidentiality rule - high-classification data must not flow to low-classification sinks - maps directly onto the MCP problem: `pii/ssn` must not flow to a logging sink; `financial/trade-order` must not be composed from `external-content/raw` inputs.
 
 Without a content classification system, policy authors must embed content semantics into tool names and registry entries ad hoc, with no standard vocabulary, no compositional semantics for mixed-content results, and no interoperability between gateways.
 
@@ -160,11 +160,11 @@ The signed envelope mechanism (§4.2) assumes one trust anchor: the proxy's sub-
 
 The signing mechanism in §4.2 does not define how a consumer receiving an envelope signed by an unfamiliar sub-CA should validate it. Without a federated trust model, the options are: accept all envelopes (defeating the security property), reject cross-org envelopes (defeating utility), or require all participants to share a single CA (defeating organizational independence).
 
-The federated trust architecture in Section 6 solves this by defining a signed, versioned trust list of authorized labeler sub-CA fingerprints — analogous to the CA/Browser Forum root store but scoped to MCP labeler identities — plus a transparency log so that new sub-CA additions are publicly auditable.
+The federated trust architecture in Section 6 solves this by defining a signed, versioned trust list of authorized labeler sub-CA fingerprints - analogous to the CA/Browser Forum root store but scoped to MCP labeler identities - plus a transparency log so that new sub-CA additions are publicly auditable.
 
 ### 1.3. Problem 3: AI Provenance Stops at MCP
 
-The envelope mechanism (§4.2) is defined over `CallToolResult` — the MCP protocol object representing a tool's response. But AI-generated content flows through pipelines in many forms that have no MCP structure: an LLM generates a response text, an agent composes a document, a multi-agent pipeline produces a report, an AI model generates code that gets committed to a repository.
+The envelope mechanism (§4.2) is defined over `CallToolResult` - the MCP protocol object representing a tool's response. But AI-generated content flows through pipelines in many forms that have no MCP structure: an LLM generates a response text, an agent composes a document, a multi-agent pipeline produces a report, an AI model generates code that gets committed to a repository.
 
 None of these carry provenance today. The same integrity and content-class problems that motivated the signed envelope mechanism (§4.2) for tool results apply equally to LLM outputs, agent documents, and pipeline artifacts:
 
@@ -176,7 +176,7 @@ Section 7 generalizes the signed-envelope pattern from MCP tool results to all A
 
 ### 1.4. Relationship to SEP-1913
 
-This document is additive to SEP-1913. It does not replace any normative requirement of SEP-1913. Section 4.2 specifies the signed trust envelope mechanism that makes SEP-1913 labels verifiable. Sections 5–7 add content classification, federation, and AI provenance. A consumer that implements this document MUST continue to accept envelopes without `content_class`, `federation`, or `ai_provenance` fields and MUST treat them as if those fields are absent rather than malformed.
+This document is additive to SEP-1913. It does not replace any normative requirement of SEP-1913. Section 4.2 specifies the signed trust envelope mechanism that makes SEP-1913 labels verifiable. Sections 5-7 add content classification, federation, and AI provenance. A consumer that implements this document MUST continue to accept envelopes without `content_class`, `federation`, or `ai_provenance` fields and MUST treat them as if those fields are absent rather than malformed.
 
 The extended envelope schema (Section 8) is a strict superset of the v0.1 envelope schema defined in §4.2. All new fields are OPTIONAL at the envelope level and REQUIRED only when the feature they support is active (e.g., `federation` fields are REQUIRED when a cross-gateway forwarding is performed).
 
@@ -184,25 +184,25 @@ The extended envelope schema (Section 8) is a strict superset of the v0.1 envelo
 
 This document is a specification. To avoid overstating what exists, the implementation status of each part is stated explicitly:
 
-- **§4.2 — Signed trust envelope substrate**: implemented in the reference implementation (github.com/webr0ck/mcp-security-platform). The verifier performs SPKI pinning, parsed-OID EKU checking, `signed_at` validity, the `MAX_ENVELOPE_AGE` freshness bound, and content-hash recomputation; envelope signing uses ES256 over JCS-canonical input. In the current reference implementation, leaf certificates are produced by a self-signed certificate builder in a demo provisioner — the step-ca-based sub-CA issuance and automated 15-minute leaf rotation described in §4.2.3 are the intended production design, not the current demo state.
-- **§5 — Content classification (BLP axis)**: SPECIFIED, NOT YET IMPLEMENTED. The registry, sink-policy grammar, multi-class union semantics, and the Wazuh rule recommendations are design-stage.
-- **§6 — Federated trust**: SPECIFIED, NOT YET IMPLEMENTED. Trust List signing, M-of-N governance, transparency-log inclusion-proof verification, and cross-gateway forwarding are design-stage.
-- **§7 — Universal AI provenance (APE)**: SPECIFIED, NOT YET IMPLEMENTED. The APE schema, model-provenance fields, pipeline-path propagation, and C2PA embedding are design-stage.
+- **§4.2 - Signed trust envelope substrate**: implemented in the reference implementation (github.com/webr0ck/mcp-security-platform). The verifier performs SPKI pinning, parsed-OID EKU checking, `signed_at` validity, the `MAX_ENVELOPE_AGE` freshness bound, and content-hash recomputation; envelope signing uses ES256 over JCS-canonical input. In the current reference implementation, leaf certificates are produced by a self-signed certificate builder in a demo provisioner - the step-ca-based sub-CA issuance and automated 15-minute leaf rotation described in §4.2.3 are the intended production design, not the current demo state.
+- **§5 - Content classification (BLP axis)**: SPECIFIED, NOT YET IMPLEMENTED. The registry, sink-policy grammar, multi-class union semantics, and the Wazuh rule recommendations are design-stage.
+- **§6 - Federated trust**: SPECIFIED, NOT YET IMPLEMENTED. Trust List signing, M-of-N governance, transparency-log inclusion-proof verification, and cross-gateway forwarding are design-stage.
+- **§7 - Universal AI provenance (APE)**: SPECIFIED, NOT YET IMPLEMENTED. The APE schema, model-provenance fields, pipeline-path propagation, and C2PA embedding are design-stage.
 
 The conformance checklist (Appendix A) and test vectors (Appendix B) are normative targets for an implementation, not a record of passing tests. Where this document says "the gateway MUST …" it states a requirement on a conformant implementation, not a claim that the current reference implementation already does so.
 
-**Reading convention — normative vs rationale**: Throughout this document, sentences containing RFC 2119 keywords (MUST, MUST NOT, SHOULD, SHOULD NOT, MAY) state requirements on conformant implementations. Surrounding prose — motivation, worked examples, threat analysis, and trade-off discussion — is explanatory rationale and does not itself impose requirements. Implementers seeking only required behavior may focus on RFC 2119 sentences and the conformance checklist in Appendix A.
+**Reading convention - normative vs rationale**: Throughout this document, sentences containing RFC 2119 keywords (MUST, MUST NOT, SHOULD, SHOULD NOT, MAY) state requirements on conformant implementations. Surrounding prose - motivation, worked examples, threat analysis, and trade-off discussion - is explanatory rationale and does not itself impose requirements. Implementers seeking only required behavior may focus on RFC 2119 sentences and the conformance checklist in Appendix A.
 
 ### 1.6. Design Trade-offs
 
 This extension is not cost-free. Adopters should weigh the following trade-offs before committing to a conformant deployment:
 
 - **Implementor complexity.** Layer A envelope verification (§4.2) adds a signature-validation path, JWKS/key management, nonce-replay state, and Trust List refresh logic to every consuming client. Deployments without this infrastructure should start with Layer B (advisory) while building toward full conformance.
-- **New client-side responsibilities.** Clients that previously relied on TLS for integrity assurance now MUST verify `signed_at` freshness, nonce uniqueness, Trust List membership, and SPKI pinning — responsibilities formerly implicit in the transport layer.
+- **New client-side responsibilities.** Clients that previously relied on TLS for integrity assurance now MUST verify `signed_at` freshness, nonce uniqueness, Trust List membership, and SPKI pinning - responsibilities formerly implicit in the transport layer.
 - **Federation governance overhead.** The Trust List (§6) requires an operational owner responsible for key rotation, revocation, cross-gateway reconciliation, and the monitoring window (§6.6 entry-approval process). This is an organizational commitment, not only a code integration.
 - **Content-class registry learning curve.** Operators must model BLP/Biba labels (§5.4) correctly for each tool server. Mislabeling degrades to either over-blocking (usability cost) or silent declassification (§9.6 risk). The registry should be reviewed by a security architect, not delegated to tool-server owners.
 - **Legacy-compatibility mode.** Mixed deployments where some consumers are v0.1-only run in advisory mode (Layer B only), losing cryptographic guarantees until both sides upgrade. See §8.1 for transition guidance.
-- **Provenance vs. privacy tension.** APE envelopes (§7) carry model identifiers, generation-parameter hashes, and full pipeline paths — information that improves audit but also exposes internal architecture. See §10 for privacy mitigations.
+- **Provenance vs. privacy tension.** APE envelopes (§7) carry model identifiers, generation-parameter hashes, and full pipeline paths - information that improves audit but also exposes internal architecture. See §10 for privacy mitigations.
 
 These costs are manageable in stages: start with §4.2 signed envelopes (highest ROI, already implemented), defer §6 federation until multi-org deployments are needed, and treat §7 APE as a long-term objective. The specification is modular; each extension field is OPTIONAL at the envelope level.
 
@@ -214,9 +214,9 @@ These costs are manageable in stages: start with §4.2 signed envelopes (highest
 
 **Artifact Provenance Envelope (APE)**: The generalized signed envelope defined in Section 7 that carries provenance for AI artifacts outside the MCP protocol. A superset of the signed trust envelope defined in §4.2.
 
-**BLP (Bell-LaPadula)**: The Bell-LaPadula confidentiality security model [BLP73]. Two properties: the simple security property ("no read up") and the ★-property ("no write down" — high-classification data must not flow to lower-classification destinations). The content classification mechanism in §5 is conceptually inspired by the ★-property intuition. This specification does not implement the full formal BLP model.
+**BLP (Bell-LaPadula)**: The Bell-LaPadula confidentiality security model [BLP73]. Two properties: the simple security property ("no read up") and the ★-property ("no write down" - high-classification data must not flow to lower-classification destinations). The content classification mechanism in §5 is conceptually inspired by the ★-property intuition. This specification does not implement the full formal BLP model.
 
-**Biba Integrity Model**: The Biba integrity security model [Biba77]. Two properties: the simple integrity property ("no read down") and the ★-integrity property ("no write up" — a subject cannot write to a higher-integrity destination). The signed envelope and session taint floor in §4.2 are conceptually inspired by the ★-integrity property intuition. This specification does not implement the full formal Biba model.
+**Biba Integrity Model**: The Biba integrity security model [Biba77]. Two properties: the simple integrity property ("no read down") and the ★-integrity property ("no write up" - a subject cannot write to a higher-integrity destination). The signed envelope and session taint floor in §4.2 are conceptually inspired by the ★-integrity property intuition. This specification does not implement the full formal Biba model.
 
 **C2PA (Coalition for Content Provenance and Authenticity)**: An open technical standard (c2pa.org) for attaching signed provenance manifests to media files and documents. This document defines how APEs embed as C2PA assertions.
 
@@ -244,7 +244,7 @@ These costs are manageable in stages: start with §4.2 signed envelopes (highest
 
 **Inclusion Proof**: A Merkle audit path demonstrating that a given leaf (e.g., a sub-CA fingerprint) is included in the transparency log's current tree head. Required before a verifier trusts a labeler sub-CA not previously seen.
 
-**Integrity Rank**: Per the Biba integrity model in §4.2, a numeric value 0–4 mapped from this document's five-level source-trust tier (which is in turn derived from SEP-1913 hint annotations; see §4.2.2): untrustedPublic=0, trustedPublic=1, internal=2, user=3, system=4.
+**Integrity Rank**: Per the Biba integrity model in §4.2, a numeric value 0-4 mapped from this document's five-level source-trust tier (which is in turn derived from SEP-1913 hint annotations; see §4.2.2): untrustedPublic=0, trustedPublic=1, internal=2, user=3, system=4.
 
 **Labeler**: The TrustLabeler component inside a Gateway. Per §4.2 of this document, the labeler signs envelopes using a short-lived leaf certificate issued by a sub-CA whose SPKI fingerprint appears in the Trust List.
 
@@ -258,7 +258,7 @@ These costs are manageable in stages: start with §4.2 signed envelopes (highest
 
 **Sink**: A tool, API, or output channel that receives data from an AI pipeline. Per the signed envelope mechanism (§4.2), sinks have a `required_integrity` floor. This document adds a `required_content_class_floor` and content-class allow/deny lists.
 
-**Sub-CA**: A certificate authority subordinate to the enterprise Root CA, whose SPKI fingerprint is pinned in the Trust List. The MCP platform operates as a Sub-CA — it does not own a Root CA. Issues labeler leaf certificates. Per the certificate profile in §4.2, nameConstrained to the mcp-security-platform namespace.
+**Sub-CA**: A certificate authority subordinate to the enterprise Root CA, whose SPKI fingerprint is pinned in the Trust List. The MCP platform operates as a Sub-CA - it does not own a Root CA. Issues labeler leaf certificates. Per the certificate profile in §4.2, nameConstrained to the mcp-security-platform namespace.
 
 **Transparency Log**: An append-only, Merkle-tree-backed log of labeler sub-CA SPKI fingerprints (and optionally individual signed assertions). Modeled after RFC 6962 (Certificate Transparency) and Sigstore Rekor.
 
@@ -269,7 +269,7 @@ These costs are manageable in stages: start with §4.2 signed envelopes (highest
 **Terminology notes for consistency:**
 
 - **Signed Trust Envelope** (also "signed envelope", "envelope"): the Layer A signed structure defined in §4.2 and carried in `CallToolResult._meta`. Both "signed envelope" and "signed trust envelope" are accepted short forms throughout this document; they refer to the same object.
-- **Labeler** (lowercase) vs **TrustLabeler** (capitalized): "labeler" refers to the role — the gateway component that assigns and signs labels. "TrustLabeler" is the specific component name in the reference implementation. Where the distinction matters (implementation-specific contexts), "TrustLabeler" is used.
+- **Labeler** (lowercase) vs **TrustLabeler** (capitalized): "labeler" refers to the role - the gateway component that assigns and signs labels. "TrustLabeler" is the specific component name in the reference implementation. Where the distinction matters (implementation-specific contexts), "TrustLabeler" is used.
 - **Gateway** vs **proxy**: Gateway is defined in §2 and detailed in §4.2. This document uses "gateway" as the standard term; "proxy" appears only when contrasting with tool-server topology.
 - **Content class** vs **content type**: "content class" is the registered identifier (e.g., `pii/email`). "Content type" is generic English; it does not refer to the registry.
 
@@ -289,7 +289,7 @@ This section defines the threat model that governs all security requirements in 
 
 ### 3.2. Trusted Components
 
-The following components are trusted within the model — their correct operation is assumed, not proved by the protocol:
+The following components are trusted within the model - their correct operation is assumed, not proved by the protocol:
 
 - **Gateway proxy / TrustLabeler**: the component that assigns labels, signs envelopes, and enforces policy. Compromise is the catastrophic case; it is mitigated by short-lived leaf keys (§4.2.3) and the transparency log (§6.4).
 - **Labeler sub-CA and its key material**: issues the short-lived leaf certificates used for signing. Protected by HSM integration (Future Work, §13) and 15-minute TTL.
@@ -298,7 +298,7 @@ The following components are trusted within the model — their correct operatio
 
 ### 3.3. Untrusted Components
 
-The following components are explicitly untrusted — the protocol provides no guarantees that depend on their honesty:
+The following components are explicitly untrusted - the protocol provides no guarantees that depend on their honesty:
 
 - **Tool servers**: any tool server may be malicious, misconfigured, or compromised. Labels MUST be assigned by the gateway, never by the tool server (§5.1 P1, §4.2.1).
 - **Network intermediaries and relays**: a man-in-the-middle may attempt to modify envelope fields in transit. Mitigated by the content-hash binding in Layer A (§4.2).
@@ -320,13 +320,13 @@ This specification defends against adversaries with the following capabilities:
 ### 3.5. Security Assumptions
 
 - SHA-256 and ES256/ES384 are computationally unfeasible to break.
-- The verifier's envelope verification code is deterministic, correct, and runs in a trusted execution context (i.e., the client is not itself compromised — see §9.9 residual risk).
+- The verifier's envelope verification code is deterministic, correct, and runs in a trusted execution context (i.e., the client is not itself compromised - see §9.9 residual risk).
 - The gateway honestly assigns labels from its own registry; a malicious gateway operator is an out-of-scope adversary for the signing mechanism, but is partially constrained by the transparency log.
 - At most M−1 of the N governance key holders are simultaneously compromised.
 
 ### 3.6. Goals and Non-Goals
 
-**Goals — this specification addresses:**
+**Goals - this specification addresses:**
 
 - Reducing credential and sensitive-data exposure by classifying content at the gateway before it reaches downstream sinks.
 - Privilege and integrity separation via the Biba integrity model (§4.2) and BLP confidentiality axis (§5).
@@ -334,7 +334,7 @@ This specification defends against adversaries with the following capabilities:
 - Cross-organizational authorization boundaries via federated trust (§6).
 - Provenance of AI-generated artifacts beyond MCP tool calls (§7).
 
-**Non-Goals — this specification does NOT address:**
+**Non-Goals - this specification does NOT address:**
 
 - Endpoint or host compromise (a compromised gateway defeats all guarantees).
 - Operating-system security or malware detection on client or server hosts.
@@ -343,7 +343,7 @@ This specification defends against adversaries with the following capabilities:
 - Runtime model-weight integrity (see §9.4 residual risk).
 - Human-author content provenance (out of scope; C2PA covers camera-captured content).
 
-A conformant implementation provides the guarantees above only within the threat model defined in §3.2–§3.5. It is not a complete security model for an AI deployment.
+A conformant implementation provides the guarantees above only within the threat model defined in §3.2-§3.5. It is not a complete security model for an AI deployment.
 
 ---
 
@@ -351,7 +351,7 @@ A conformant implementation provides the guarantees above only within the threat
 
 ### 4.1. SEP-1913: Vocabulary Without Verification
 
-SEP-1913 (MCP Enhancement Proposal, PR #1913) defines a vocabulary for annotating MCP tool results with trust and sensitivity metadata. Its annotation fields are `sensitiveHint` (granular sensitivity, e.g. low/medium/high), `privateHint` (marks internal/private data), `openWorldHint` (marks data drawn from untrusted/external sources), `maliciousActivityHint` (signals detected suspicious patterns), and `attribution` (provenance information about the tool result's origin). SEP-1913 deliberately does not impose a single ordered `source` tier; this document constructs one. Specifically, this extension derives a five-level source-trust tier — `untrustedPublic`, `trustedPublic`, `internal`, `user`, `system` — from those hints (see §4.2.2) and uses it as the Biba integrity axis. Throughout this document, references to a "source tier" or "trust tier" denote this extension's derived model, not a native SEP-1913 field.
+SEP-1913 (MCP Enhancement Proposal, PR #1913) defines a vocabulary for annotating MCP tool results with trust and sensitivity metadata. Its annotation fields are `sensitiveHint` (granular sensitivity, e.g. low/medium/high), `privateHint` (marks internal/private data), `openWorldHint` (marks data drawn from untrusted/external sources), `maliciousActivityHint` (signals detected suspicious patterns), and `attribution` (provenance information about the tool result's origin). SEP-1913 deliberately does not impose a single ordered `source` tier; this document constructs one. Specifically, this extension derives a five-level source-trust tier - `untrustedPublic`, `trustedPublic`, `internal`, `user`, `system` - from those hints (see §4.2.2) and uses it as the Biba integrity axis. Throughout this document, references to a "source tier" or "trust tier" denote this extension's derived model, not a native SEP-1913 field.
 
 This vocabulary is necessary and well-designed for communicating intent. It does not, however, provide any mechanism for a downstream consumer to verify the labels. A gateway that receives a `CallToolResult` carrying SEP-1913 hint annotations (or this document's derived tier) has no cryptographic assurance that the labels were not set by the tool server itself, modified in transit, or forged by a network intermediary. The labels travel as unsigned JSON fields in `_meta`, indistinguishable in their integrity properties from the tool result content they describe.
 
@@ -359,7 +359,7 @@ Three structural gaps follow from the absence of verification:
 
 1. **Unverifiable provenance**: A consumer that did not produce the SEP-1913 label cannot trust it without an out-of-band agreement with the producer. In multi-gateway and multi-organization deployments this is impractical.
 
-2. **No content-type policy axis**: SEP-1913 addresses source trustworthiness (where did this come from?) but not content type (what is this?). Two results with identical `source` tiers may require completely different data-flow policies based on their content — a `pii/ssn` result and a `search-result/web` result may both be `trustedPublic`, but should never reach the same sinks.
+2. **No content-type policy axis**: SEP-1913 addresses source trustworthiness (where did this come from?) but not content type (what is this?). Two results with identical `source` tiers may require completely different data-flow policies based on their content - a `pii/ssn` result and a `search-result/web` result may both be `trustedPublic`, but should never reach the same sinks.
 
 3. **MCP-only scope**: SEP-1913 annotations apply to `CallToolResult` objects. LLM responses, agent-composed documents, and multi-agent pipeline outputs have no equivalent annotation mechanism, leaving the majority of AI-generated content without any trust or provenance metadata.
 
@@ -395,7 +395,7 @@ Layer B (advisory only):  ──────────────────
 
 #### 4.2.2. Biba Integrity Model and SEP-1913 Mapping
 
-This document defines a five-level source-trust tier and maps it to Biba integer ranks 0–4. The tier is derived from SEP-1913 hint annotations by the gateway registry — for example, a server whose results carry `openWorldHint: true` (untrusted/external) maps to `untrustedPublic`; a server marked `privateHint` for internal data maps to `internal`; the `user` and `system` tiers are assigned by the gateway to caller- and platform-originated content respectively. The derivation rules are a registry concern (the gateway assigns the tier per `server_id`), not a SEP-1913 field lookup. The tier-to-rank mapping is:
+This document defines a five-level source-trust tier and maps it to Biba integer ranks 0-4. The tier is derived from SEP-1913 hint annotations by the gateway registry - for example, a server whose results carry `openWorldHint: true` (untrusted/external) maps to `untrustedPublic`; a server marked `privateHint` for internal data maps to `internal`; the `user` and `system` tiers are assigned by the gateway to caller- and platform-originated content respectively. The derivation rules are a registry concern (the gateway assigns the tier per `server_id`), not a SEP-1913 field lookup. The tier-to-rank mapping is:
 
 | Source-trust tier (this document) | Biba Integrity Rank |
 |------------------------|---------------------|
@@ -405,19 +405,19 @@ This document defines a five-level source-trust tier and maps it to Biba integer
 | `user`                 | 3                   |
 | `system`               | 4                   |
 
-The gateway assigns `integrity_rank` from its registry — never from server self-assertion. Session taint is computed as the minimum integrity rank across all sources touched in the session (`effective_integrity = min(integrity_rank for all results in session)`). Sinks declare `required_integrity`; the gateway denies any call where `effective_integrity < required_integrity`. Binary session-taint enforcement: any rank-0 result taints the session for high-sensitivity sinks. Taint is written durably before the result is forwarded; store errors fail closed.
+The gateway assigns `integrity_rank` from its registry - never from server self-assertion. Session taint is computed as the minimum integrity rank across all sources touched in the session (`effective_integrity = min(integrity_rank for all results in session)`). Sinks declare `required_integrity`; the gateway denies any call where `effective_integrity < required_integrity`. Binary session-taint enforcement: any rank-0 result taints the session for high-sensitivity sinks. Taint is written durably before the result is forwarded; store errors fail closed.
 
 #### 4.2.3. Certificate Profile
 
-The certificate profile specifies: a Sub-CA issued by the enterprise Root CA (the MCP platform does not own a Root CA — it operates as a Sub-CA subordinate to the company PKI), nameConstrained to the mcp-security-platform namespace, with a labeler EKU (`1.3.6.1.4.1.<PEN>.mcp.labeler`). Leaf certificates are short-lived (15-minute TTL). The verifier performs SPKI pinning against the Sub-CA, parsed-OID EKU check (no `anyExtendedKeyUsage`), point-in-time validity at `signed_at`, `MAX_ENVELOPE_AGE` freshness bound (600 seconds), and content hash recomputation.
+The certificate profile specifies: a Sub-CA issued by the enterprise Root CA (the MCP platform does not own a Root CA - it operates as a Sub-CA subordinate to the company PKI), nameConstrained to the mcp-security-platform namespace, with a labeler EKU (`1.3.6.1.4.1.<PEN>.mcp.labeler`). Leaf certificates are short-lived (15-minute TTL). The verifier performs SPKI pinning against the Sub-CA, parsed-OID EKU check (no `anyExtendedKeyUsage`), point-in-time validity at `signed_at`, `MAX_ENVELOPE_AGE` freshness bound (600 seconds), and content hash recomputation.
 
 ```
 Certificate / Credential Flow
 
-  Root CA (Company PKI — offline, HSM-protected)
+  Root CA (Company PKI - offline, HSM-protected)
       │ issues (offline, long-lived)
       ▼
-  Sub-CA (MCP Platform — nameConstrained to mcp-security-platform namespace,
+  Sub-CA (MCP Platform - nameConstrained to mcp-security-platform namespace,
           labeler EKU = 1.3.6.1.4.1.<PEN>.mcp.labeler)
       │ SPKI fingerprint pinned in Trust List (§6.2) and verifier config
       │ issues (step-ca, automated, 15-min TTL)
@@ -440,11 +440,11 @@ Certificate / Credential Flow
 
 The signed envelope mechanism deliberately defers three capabilities:
 
-1. **Federated trust**: the verifier only accepts envelopes from its own pinned sub-CA. Cross-organization scenarios are undefined — addressed by Section 6 of this document.
+1. **Federated trust**: the verifier only accepts envelopes from its own pinned sub-CA. Cross-organization scenarios are undefined - addressed by Section 6 of this document.
 2. **Per-value taint (C-precise model)**: the envelope implements binary session taint. Fine-grained tracking of which argument values carry which labels is deferred to Future Work (Section 13).
-3. **BLP confidentiality axis**: the envelope models only integrity (Biba). Content-type-based data flow policy is not addressed — added by Section 5 of this document.
+3. **BLP confidentiality axis**: the envelope models only integrity (Biba). Content-type-based data flow policy is not addressed - added by Section 5 of this document.
 
-Additionally, the signed envelope is scoped to MCP `CallToolResult` objects. It provides no envelope mechanism for LLM outputs, agent documents, or pipeline artifacts — addressed by Section 7 of this document.
+Additionally, the signed envelope is scoped to MCP `CallToolResult` objects. It provides no envelope mechanism for LLM outputs, agent documents, or pipeline artifacts - addressed by Section 7 of this document.
 
 ### 4.3. What This Document Adds
 
@@ -455,16 +455,16 @@ To aid reviewers, this section distinguishes established practices this document
 - Signed JSON envelopes (JWS, RFC 7515) and JSON canonicalization (JCS, RFC 8785).
 - Certificate Transparency / Merkle-tree transparency logs (RFC 6962, Sigstore Rekor).
 - C2PA signed provenance manifests (C2PA 2.1).
-- Biba integrity model and Bell-LaPadula confidentiality model (existing formal models, 1973–1977).
+- Biba integrity model and Bell-LaPadula confidentiality model (existing formal models, 1973-1977).
 - OAuth 2.1 / PKCE for MCP transport authentication (not extended here; referenced as existing practice).
 - Principle of least privilege, proxy-interposition for label assignment (existing security design patterns).
 
 **New contributions of this document:**
 
-- A BLP confidentiality axis applied orthogonally to Biba integrity on MCP tool results — making content *type* a first-class policy input alongside source *trustworthiness*.
+- A BLP confidentiality axis applied orthogonally to Biba integrity on MCP tool results - making content *type* a first-class policy input alongside source *trustworthiness*.
 - A standardized content-class registry vocabulary (`pii/ssn`, `financial/trade-order`, etc.) with defined confidentiality floors and sink-policy grammar.
 - A federated Trust List scoped specifically to MCP labeler identities, making execution-locality of label assertion explicit and verifiable across organizations.
-- Trust-scope constraints bounding what each labeler may assert — not present in generic PKI or CT models.
+- Trust-scope constraints bounding what each labeler may assert - not present in generic PKI or CT models.
 - An Artifact Provenance Envelope (APE) generalizing the signed-envelope pattern to non-MCP AI artifacts, with C2PA interoperability for the `io.mcp-security-platform.ai-provenance` assertion type.
 - Pipeline-path integrity propagation applying the Biba minimum operation across multi-agent chains.
 
@@ -472,7 +472,7 @@ To aid reviewers, this section distinguishes established practices this document
 
 **Federated trust** (Section 6): a signed Trust List, transparency log, and cross-gateway envelope forwarding protocol that extends the signed envelope mechanism from single-organization to multi-organization deployments. Modeled after the CA/Browser Forum root store but scoped to MCP labeler identities.
 
-**Universal AI provenance** (Section 7): an Artifact Provenance Envelope (APE) that generalizes the signed-envelope pattern from MCP tool results to all AI-generated artifacts — LLM responses, agent documents, AI code, pipeline reports — with C2PA interoperability. Closes the gap where tainted-source content can escape the integrity model by being transformed by an LLM step.
+**Universal AI provenance** (Section 7): an Artifact Provenance Envelope (APE) that generalizes the signed-envelope pattern from MCP tool results to all AI-generated artifacts - LLM responses, agent documents, AI code, pipeline reports - with C2PA interoperability. Closes the gap where tainted-source content can escape the integrity model by being transformed by an LLM step.
 
 ---
 
@@ -617,7 +617,7 @@ Fields:
 
 - `primary` (REQUIRED): The single content class that best describes the primary content of this result. MUST be a registered class identifier.
 - `additional` (OPTIONAL): An array of additional content class identifiers present in this result. MUST contain only registered class identifiers. MAY be empty or absent if no additional classes apply.
-- `effective` (REQUIRED): The effective content class for policy evaluation — the class with the strictest confidentiality floor across `primary` and all `additional` entries. MUST be computed by the gateway and MUST NOT be set by the tool server.
+- `effective` (REQUIRED): The effective content class for policy evaluation - the class with the strictest confidentiality floor across `primary` and all `additional` entries. MUST be computed by the gateway and MUST NOT be set by the tool server.
 - `conf_floor` (REQUIRED): The confidentiality floor corresponding to the `effective` class. MUST match the registry entry for `effective`.
 - `allowlist_required` (REQUIRED): Boolean. TRUE if any class in `primary` or `additional` has `allowlist_required: true` in the registry. Once TRUE, it cannot be overridden to FALSE by other classes in the union.
 - `assigned_by` (REQUIRED): The gateway identity that assigned the content class. MUST match the `labeler_id` in the outer trust envelope.
@@ -639,7 +639,7 @@ ALLOW data flow if:
         effective_class IN sink.content_class_allowlist       [allowlist gate]
 ```
 
-The BLP axis is evaluated by comparing the content's effective confidentiality floor against the **sink's** declared confidentiality level (`conf_level`) — *not* against the integrity rank. The following matrix illustrates the BLP "no write down" check alone (content floor on the rows, sink clearance on the columns); "OK" means the content's floor is at or below the sink's clearance:
+The BLP axis is evaluated by comparing the content's effective confidentiality floor against the **sink's** declared confidentiality level (`conf_level`) - *not* against the integrity rank. The following matrix illustrates the BLP "no write down" check alone (content floor on the rows, sink clearance on the columns); "OK" means the content's floor is at or below the sink's clearance:
 
 ```
                               SINK CONFIDENTIALITY LEVEL (conf_level / clearance)
@@ -656,7 +656,7 @@ The BLP axis is evaluated by comparing the content's effective confidentiality f
                   allowlist entry at the sink, regardless of conf_level.
 ```
 
-This matrix shows only the BLP (confidentiality) axis. The Biba (integrity) axis is **orthogonal** and is evaluated independently: a flow is permitted only when BOTH `effective_integrity >= sink.required_integrity` (Biba) AND the BLP cell above is "OK" AND any applicable allowlist gate is satisfied (see the combined ALLOW conditions earlier in this section). A flow that is "OK" on the BLP matrix may still be denied by the Biba check, and vice versa — neither axis is a function of the other. This is the orthogonality asserted in Design Principle P4. The worked examples below and the Appendix B.1 test vectors evaluate the two axes in exactly this independent manner.
+This matrix shows only the BLP (confidentiality) axis. The Biba (integrity) axis is **orthogonal** and is evaluated independently: a flow is permitted only when BOTH `effective_integrity >= sink.required_integrity` (Biba) AND the BLP cell above is "OK" AND any applicable allowlist gate is satisfied (see the combined ALLOW conditions earlier in this section). A flow that is "OK" on the BLP matrix may still be denied by the Biba check, and vice versa - neither axis is a function of the other. This is the orthogonality asserted in Design Principle P4. The worked examples below and the Appendix B.1 test vectors evaluate the two axes in exactly this independent manner.
 
 **Policy evaluation decision flowchart** (corresponds to the 6-step order in §5.6):
 
@@ -705,7 +705,7 @@ Incoming data flow request
 
 ### 5.5. Multi-Class Handling
 
-A single MCP tool result may contain multiple content types in its payload — for example, a CRM record might contain both `pii/email` and `financial/balance`. The gateway registry MUST assign content class by inspecting the result structure (pattern matching, schema validation, or explicit registry configuration per tool), not by trusting any field in the result itself.
+A single MCP tool result may contain multiple content types in its payload - for example, a CRM record might contain both `pii/email` and `financial/balance`. The gateway registry MUST assign content class by inspecting the result structure (pattern matching, schema validation, or explicit registry configuration per tool), not by trusting any field in the result itself.
 
 **Union rule**: The `effective` class is the class with the highest confidentiality floor across all classes present. When two classes have the same confidentiality floor, either may be chosen as `effective` (the floor value is what matters for policy). All classes MUST appear in either `primary` or `additional`.
 
@@ -803,7 +803,7 @@ Content classification occurs at the TrustLabeler component, after the tool resu
 [MCP Server Response]
     |
     v
-[Gateway Proxy — existing invocation path]
+[Gateway Proxy - existing invocation path]
     |
     v
 [Trust Tier Lookup] ← §4.2: lookup server_id in registry → integrity_rank
@@ -870,7 +870,7 @@ For the initial implementation of this extension proposal, per-pattern detection
 
 Consumers implementing only the signed envelope mechanism (§4.2) that do not understand the `content_class` field in the envelope will simply ignore it. The gateway MUST NOT break these consumers when it begins attaching `content_class` fields. The `schema_version` bump from `v0.1` to `v0.2` (Section 8.1) signals to conformant consumers that extended fields are present.
 
-During a transition period, gateway operators MAY emit both `v0.1` and `v0.2` envelope keys simultaneously under their respective `_meta` keys. Consumers implementing the signing mechanism in §4.2 use the `v0.1` key; consumers implementing this document prefer the `v0.2` key. The signed content MUST be identical in both — the gateway signs the same canonical content hash and integrity label in both versions, with the `v0.2` version additionally covering `content_class` and `federation` fields.
+During a transition period, gateway operators MAY emit both `v0.1` and `v0.2` envelope keys simultaneously under their respective `_meta` keys. Consumers implementing the signing mechanism in §4.2 use the `v0.1` key; consumers implementing this document prefer the `v0.2` key. The signed content MUST be identical in both - the gateway signs the same canonical content hash and integrity label in both versions, with the `v0.2` version additionally covering `content_class` and `federation` fields.
 
 #### 5.8.4. Performance Considerations
 
@@ -878,17 +878,17 @@ Content classification adds two operations to the hot path:
 
 1. **Registry lookup**: A read against the in-memory tool registry for `default_content_class`. This is O(1) against a hash map and adds negligible latency (sub-microsecond).
 
-2. **Pattern-based detection** (when enabled): Regex or JSONPath scanning of the tool result content. Implementations MUST use a linear-time regex engine (RE2, Hyperscan, or Rust's `regex` crate). PCRE and other backtracking engines MUST NOT be used against tool result content — attacker-controlled payloads can trigger catastrophic backtracking (reference: Cloudflare global outage, July 2019, caused by one backtracking WAF rule deployed to production).
+2. **Pattern-based detection** (when enabled): Regex or JSONPath scanning of the tool result content. Implementations MUST use a linear-time regex engine (RE2, Hyperscan, or Rust's `regex` crate). PCRE and other backtracking engines MUST NOT be used against tool result content - attacker-controlled payloads can trigger catastrophic backtracking (reference: Cloudflare global outage, July 2019, caused by one backtracking WAF rule deployed to production).
 
-   For results exceeding the implementation's scan limit or triggering a scan timeout, implementations MUST NOT silently truncate. Scanning the first N bytes and passing the remainder uninspected is the standard WAF bypass technique against inspection-bounded scanners and directly defeats the content classification guarantee. Instead, any result that cannot be fully scanned MUST be treated as fully untrusted: `integrity_rank = 0` (untrustedPublic), `conf_floor = secret`, `allowlist_required = true`. The result still flows if the receiving sink's policy permits untrusted content at secret classification — it is not dropped — but it cannot reach a tighter sink without explicit operator allowlisting. The audit log entry MUST include `scan_limit_exceeded` or `scan_timeout` as the `deny_reason` so the event is observable. A per-invocation scan timeout of 500 ms is RECOMMENDED.
+   For results exceeding the implementation's scan limit or triggering a scan timeout, implementations MUST NOT silently truncate. Scanning the first N bytes and passing the remainder uninspected is the standard WAF bypass technique against inspection-bounded scanners and directly defeats the content classification guarantee. Instead, any result that cannot be fully scanned MUST be treated as fully untrusted: `integrity_rank = 0` (untrustedPublic), `conf_floor = secret`, `allowlist_required = true`. The result still flows if the receiving sink's policy permits untrusted content at secret classification - it is not dropped - but it cannot reach a tighter sink without explicit operator allowlisting. The audit log entry MUST include `scan_limit_exceeded` or `scan_timeout` as the `deny_reason` so the event is observable. A per-invocation scan timeout of 500 ms is RECOMMENDED.
 
 The BLP + allowlist check (policy evaluation) is a constant-time operation against the pre-loaded sink policy object and adds negligible latency.
 
-The signing input is extended by the `content_class` sub-object (approximately 300–500 bytes of additional JSON). JCS canonicalization and ES256 signing time are dominated by the content hash size, not the label size. The additional fields are expected to add < 0.1 ms to signing latency on a modern CPU.
+The signing input is extended by the `content_class` sub-object (approximately 300-500 bytes of additional JSON). JCS canonicalization and ES256 signing time are dominated by the content hash size, not the label size. The additional fields are expected to add < 0.1 ms to signing latency on a modern CPU.
 
 #### 5.8.5. Audit Log Extensions
 
-The existing `TOOL_INVOCATION` audit event (defined in the gateway implementation per §4.2) is extended with content class fields. The schema below is the normative IR-ready format — every field marked REQUIRED MUST be present; RECOMMENDED fields SHOULD be present in production deployments.
+The existing `TOOL_INVOCATION` audit event (defined in the gateway implementation per §4.2) is extended with content class fields. The schema below is the normative IR-ready format - every field marked REQUIRED MUST be present; RECOMMENDED fields SHOULD be present in production deployments.
 
 ```json
 {
@@ -951,10 +951,10 @@ The existing `TOOL_INVOCATION` audit event (defined in the gateway implementatio
 **IR-readiness notes:**
 
 - `request.request_id` + `request.conversation_id`: join all events in a single MCP conversation. Use `conversation_id` to reconstruct the full agent session; use `request_id` to find the exact invocation.
-- `request.parent_request_id`: non-null in multi-agent chains — traces which upstream call triggered this one.
+- `request.parent_request_id`: non-null in multi-agent chains - traces which upstream call triggered this one.
 - `request.correlation_id`: propagated from the client's `X-Correlation-ID` or W3C `traceparent` header. Allows joining gateway logs with upstream application logs across systems.
 - `actor.session_id`: the gateway's own session identifier. A single `user_id` may have multiple parallel sessions; `session_id` scopes the blast radius.
-- `actor.token_id`: the JWT `jti` claim or API key identifier — allows token revocation to be correlated with events generated while the token was active.
+- `actor.token_id`: the JWT `jti` claim or API key identifier - allows token revocation to be correlated with events generated while the token was active.
 - `duration_ms`: required for distinguishing ReDoS / scan-timeout events from normal denials in SIEM triage.
 - `envelope.sub_ca_fp`: allows instant correlation with Trust List entries and revocation events without re-fetching the envelope.
 
@@ -981,9 +981,9 @@ The `deny_reasons` field is extended with the following values specific to this 
 
 Wazuh rule recommendations (extending the baseline audit rules defined with the gateway implementation):
 
-- Rule 100002 (level 10): `TOOL_INVOCATION` + `outcome=deny` + `deny_reasons=blp_floor`. Indicates a data-flow policy violation — content attempted to reach a sink above its classification level.
-- Rule 100003 (level 12): `TOOL_INVOCATION` + `deny_reasons=trust_scope_violation`. Indicates a labeler is asserting outside its registered scope — possible labeler misconfiguration or compromise.
-- Rule 100004 (level 14): `TOOL_INVOCATION` + `deny_reasons=inclusion_proof_failed`. Indicates a sub-CA without a valid transparency log entry — possible unauthorized sub-CA registration.
+- Rule 100002 (level 10): `TOOL_INVOCATION` + `outcome=deny` + `deny_reasons=blp_floor`. Indicates a data-flow policy violation - content attempted to reach a sink above its classification level.
+- Rule 100003 (level 12): `TOOL_INVOCATION` + `deny_reasons=trust_scope_violation`. Indicates a labeler is asserting outside its registered scope - possible labeler misconfiguration or compromise.
+- Rule 100004 (level 14): `TOOL_INVOCATION` + `deny_reasons=inclusion_proof_failed`. Indicates a sub-CA without a valid transparency log entry - possible unauthorized sub-CA registration.
 - Rule 100005 (level 14): `TOOL_INVOCATION` + `deny_reasons=trust_list_sequence_rollback`. Indicates an active Trust List rollback attack attempt.
 
 #### 5.8.6. Error Conditions and Failure Behavior
@@ -997,13 +997,13 @@ The gateway verifier MUST treat a result with a malformed or unverifiable envelo
 If the content class label in a received envelope is not recognized by the verifying consumer, the consumer MUST treat it as the most restrictive registered class (`conf_floor = secret`, `allowlist_required = true`) unless the operator has explicitly configured a default for unrecognized classes. Implementations SHOULD log unrecognized class strings at warning severity.
 
 **Trust List fetch failure:**
-If the gateway cannot fetch an updated Trust List (network failure, timeout, unreachable log server), it MUST continue operating with the last successfully fetched Trust List for a configurable grace period (RECOMMENDED maximum: 24 hours). If the grace period expires without a successful refresh, the gateway MUST either: (a) fail closed — deny all cross-gateway envelopes until the Trust List is refreshed — or (b) alert the operator and continue in advisory mode for cross-gateway traffic only. Operators MUST configure one of these behaviors explicitly; there is no silent default.
+If the gateway cannot fetch an updated Trust List (network failure, timeout, unreachable log server), it MUST continue operating with the last successfully fetched Trust List for a configurable grace period (RECOMMENDED maximum: 24 hours). If the grace period expires without a successful refresh, the gateway MUST either: (a) fail closed - deny all cross-gateway envelopes until the Trust List is refreshed - or (b) alert the operator and continue in advisory mode for cross-gateway traffic only. Operators MUST configure one of these behaviors explicitly; there is no silent default.
 
 **Transparency log inclusion proof failure:**
-If inclusion proof verification fails for a sub-CA entry (§6.4), the gateway MUST deny the envelope and log the event at severity level 14 (Wazuh Rule 100004: `TOOL_INVOCATION` + `deny_reasons=inclusion_proof_failed` — defined in §5.8.5). The gateway MUST NOT silently accept an envelope whose sub-CA lacks a valid inclusion proof.
+If inclusion proof verification fails for a sub-CA entry (§6.4), the gateway MUST deny the envelope and log the event at severity level 14 (Wazuh Rule 100004: `TOOL_INVOCATION` + `deny_reasons=inclusion_proof_failed` - defined in §5.8.5). The gateway MUST NOT silently accept an envelope whose sub-CA lacks a valid inclusion proof.
 
 **Classification pipeline internal error:**
-If the classification step (content class lookup, multi-class detection, or effective class computation) encounters an internal error, the gateway MUST deny the result rather than forwarding it unclassified. A fail-open stance — forwarding content without a class label when classification fails — defeats the purpose of the policy enforcement pipeline.
+If the classification step (content class lookup, multi-class detection, or effective class computation) encounters an internal error, the gateway MUST deny the result rather than forwarding it unclassified. A fail-open stance - forwarding content without a class label when classification fails - defeats the purpose of the policy enforcement pipeline.
 
 **Timeout behavior:**
 Signature verification and Trust List refresh operations SHOULD complete within 500ms. Implementations that exceed this threshold for signature verification SHOULD surface a health metric; operations that exceed 2000ms SHOULD be treated as failures with the behavior described for their respective error case above. These thresholds are non-normative defaults; operators MAY configure tighter bounds.
@@ -1020,7 +1020,7 @@ The federated trust architecture introduces three components that together solve
 
 1. **Trust List**: A signed JSON document enumerating authorized labeler sub-CA SPKI fingerprints across all participating organizations. Each gateway operator trusts envelopes signed by any sub-CA on the Trust List within that sub-CA's declared trust scope.
 
-2. **Transparency Log**: An append-only, Merkle-tree-backed log of Trust List updates and sub-CA registrations. Provides external auditability — any party can verify that a sub-CA was properly registered and that the Trust List was not silently modified.
+2. **Transparency Log**: An append-only, Merkle-tree-backed log of Trust List updates and sub-CA registrations. Provides external auditability - any party can verify that a sub-CA was properly registered and that the Trust List was not silently modified.
 
 3. **Cross-Gateway Forwarding**: A defined protocol for how a gateway forwards an already-labeled result to its own downstream consumers, preserving the original envelope's verifiability while optionally adding its own outer attestation.
 
@@ -1294,7 +1294,7 @@ Gateway A signs a new outer envelope over the original Gateway B envelope, produ
 
 Requirements for Re-Sign mode:
 - Gateway A MUST validate the original Gateway B envelope before re-signing. Gateway A MUST NOT re-sign an invalid envelope.
-- The outer label's `integrity_rank` MUST be `min(outer_rank, inner_rank)` — Gateway A cannot promote the integrity rank above what Gateway B asserted. (This preserves the Biba integrity model defined in §4.2.)
+- The outer label's `integrity_rank` MUST be `min(outer_rank, inner_rank)` - Gateway A cannot promote the integrity rank above what Gateway B asserted. (This preserves the Biba integrity model defined in §4.2.)
 - The outer label's content class `effective` MUST be the stricter of Gateway A's own classification and Gateway B's asserted class. Gateway A MUST NOT assert a less restrictive content class than Gateway B.
 - The `forwarded_envelope` field MUST contain the complete original Gateway B envelope exactly as received, without modification.
 - The outer signature covers the canonical JSON of `label`, `binding`, and the hash of `forwarded_envelope` (not its content inline, to avoid double-counting in size-constrained contexts).
@@ -1311,7 +1311,7 @@ This governance model is structurally identical to the threshold signing used in
 
 Implementation: the Trust List's `signature` field contains a multi-signature structure rather than a single signature. Each key holder signs the canonical Trust List JSON independently; the `signature` field is an array of `{kid, sig}` objects. Verifiers check that at least M valid signatures from distinct registered governance keys are present.
 
-**Key holder separation (REQUIRED)**: The M signing keys that satisfy a threshold MUST belong to key holders who are organizationally and temporally independent — they MUST NOT share a common credential store, HSM, or administrative domain. The intent is that compromising a single system, person, or credential store cannot yield M valid signatures. Governance key holders SHOULD be enrolled at different times (staggered enrollment) so that a single supply-chain event cannot compromise all keys simultaneously. This requirement is derived from TUF's defense against a single compromise event covering multiple threshold keys.
+**Key holder separation (REQUIRED)**: The M signing keys that satisfy a threshold MUST belong to key holders who are organizationally and temporally independent - they MUST NOT share a common credential store, HSM, or administrative domain. The intent is that compromising a single system, person, or credential store cannot yield M valid signatures. Governance key holders SHOULD be enrolled at different times (staggered enrollment) so that a single supply-chain event cannot compromise all keys simultaneously. This requirement is derived from TUF's defense against a single compromise event covering multiple threshold keys.
 
 **Governance key rotation**: Governance keys MUST be rotated on a schedule no longer than 1 year. Rotation requires M-of-N approval from the outgoing key set to sign a key-rotation event in the transparency log. The new governance public key MUST be logged before taking effect. Verifiers receive new governance public keys via an out-of-band, signed key distribution mechanism (e.g., embedded in a software update or configuration management system).
 
@@ -1343,35 +1343,35 @@ For envelopes with `signed_at < revocation_timestamp`, the revocation does not r
 
 #### Why §4.2 Is Not Enough
 
-The signed trust envelope (§4.2) solves provenance for content on the MCP wire: it lives in `CallToolResult._meta` and is verified by the consuming gateway while the MCP message is in flight. Once that message is processed and an agent acts on it — writing a file, committing code, generating a report, sending an email — the MCP structure is gone. There is no `_meta` to carry provenance forward. The artifact exists independently of any MCP session, and the only record of its origin is whatever the agent chooses to assert.
+The signed trust envelope (§4.2) solves provenance for content on the MCP wire: it lives in `CallToolResult._meta` and is verified by the consuming gateway while the MCP message is in flight. Once that message is processed and an agent acts on it - writing a file, committing code, generating a report, sending an email - the MCP structure is gone. There is no `_meta` to carry provenance forward. The artifact exists independently of any MCP session, and the only record of its origin is whatever the agent chooses to assert.
 
 This creates a gap: a downstream consumer of the artifact (a code reviewer, a compliance system, a human) cannot tell whether it was produced by a trusted model from verified inputs or fabricated entirely. The signed envelope on the tool result that fed into the artifact is not visible at artifact level.
 
-The Artifact Provenance Envelope (APE) closes this gap. It uses the same signing infrastructure (§4.2 sub-CA + labeler EKU + ES256/JCS) but binds a signature to the artifact itself rather than to an MCP message — so provenance travels with the artifact wherever it goes.
+The Artifact Provenance Envelope (APE) closes this gap. It uses the same signing infrastructure (§4.2 sub-CA + labeler EKU + ES256/JCS) but binds a signature to the artifact itself rather than to an MCP message - so provenance travels with the artifact wherever it goes.
 
 #### Who Signs and When
 
-APE signing is the responsibility of the **agent orchestration layer** — not the inference API, not the MCP gateway, not a post-hoc signing service. The agent orchestration layer is the only component that simultaneously has access to:
+APE signing is the responsibility of the **agent orchestration layer** - not the inference API, not the MCP gateway, not a post-hoc signing service. The agent orchestration layer is the only component that simultaneously has access to:
 
 - The model identity that produced the output (`model_id`)
-- The tool results that contributed to it (each already carrying a §4.2 signed envelope — their `result_id` values are recorded in the APE's `pipeline_path`)
+- The tool results that contributed to it (each already carrying a §4.2 signed envelope - their `result_id` values are recorded in the APE's `pipeline_path`)
 - The full generation context (session ID, conversation ID, prompts)
 - The final artifact content (needed to compute `artifact_hash`)
 
-**Signing MUST occur at the moment the artifact is finalized, before it is written to any persistent store or transmitted outside the agent session.** Signing after storage (e.g., signing a file that has already been committed) is insufficient — the content could have been modified between generation and signing.
+**Signing MUST occur at the moment the artifact is finalized, before it is written to any persistent store or transmitted outside the agent session.** Signing after storage (e.g., signing a file that has already been committed) is insufficient - the content could have been modified between generation and signing.
 
 **Concrete signing points by agent type:**
 
 | Agent type | When to sign | What triggers it |
 |---|---|---|
-| **Claude Code / coding agent** | Before writing a generated file to disk or committing to a repository | The `write_file` or `git commit` tool call — sign before the MCP tool invocation that persists the artifact |
+| **Claude Code / coding agent** | Before writing a generated file to disk or committing to a repository | The `write_file` or `git commit` tool call - sign before the MCP tool invocation that persists the artifact |
 | **Document-composing agent** | Before the final document is returned to the user or stored | At the end of the composition pipeline, after all inputs have been assembled |
 | **Multi-agent pipeline** | Each agent signs its intermediate output; the orchestrator signs the final report | Per-agent output signing + final aggregation signing |
 | **LLM inference wrapper** | After each model completion, before the response is returned to the caller | Post-inference hook in the agent harness |
 
 For **Claude Code specifically**: the agent harness SHOULD implement a signing hook that fires on any tool call whose effect is to persist an AI-generated artifact (filesystem writes, git operations, API POSTs). The hook receives the artifact content, constructs the APE, signs it using the gateway's labeler key infrastructure, and attaches the APE as a sidecar (e.g., `generated_file.py.ape.json`) or embeds it in the file's metadata where the format supports it.
 
-**What if the agent cannot sign?** If the agent harness does not implement APE signing, the MCP gateway SHOULD implement a best-effort APE at the boundary where the artifact leaves the MCP session — this is weaker (the gateway did not observe generation context) but captures at minimum the artifact hash, the session identity, and the time of transit. This is explicitly a fallback; the gateway-signed APE SHOULD be marked `signing_context: "gateway_boundary"` to distinguish it from an agent-signed APE.
+**What if the agent cannot sign?** If the agent harness does not implement APE signing, the MCP gateway SHOULD implement a best-effort APE at the boundary where the artifact leaves the MCP session - this is weaker (the gateway did not observe generation context) but captures at minimum the artifact hash, the session identity, and the time of transit. This is explicitly a fallback; the gateway-signed APE SHOULD be marked `signing_context: "gateway_boundary"` to distinguish it from an agent-signed APE.
 
 #### Artifact Types In Scope
 
@@ -1389,7 +1389,7 @@ The following are explicitly out of scope (existing provenance standards apply):
 
 ### 7.2. Artifact Provenance Envelope (APE)
 
-The Artifact Provenance Envelope is a JSON structure that carries signed provenance for an AI-generated artifact. It is designed to be carried out-of-band (as a sidecar file) or inline (as metadata in a structured artifact format). It is NOT embedded in `_meta` since it applies to artifacts that have no MCP structure — `_meta` only exists on MCP wire messages, which the artifact has already left.
+The Artifact Provenance Envelope is a JSON structure that carries signed provenance for an AI-generated artifact. It is designed to be carried out-of-band (as a sidecar file) or inline (as metadata in a structured artifact format). It is NOT embedded in `_meta` since it applies to artifacts that have no MCP structure - `_meta` only exists on MCP wire messages, which the artifact has already left.
 
 The APE MUST be signed using the same ES256 labeler key infrastructure as Layer A (§4.2), using the same sub-CA + labeler EKU, subject to the same Trust List requirements.
 
@@ -1687,7 +1687,7 @@ This does not delete or invalidate the artifact or its signature. It downgrades 
 
 **Notification requirement**: Gateway operators SHOULD subscribe to model provider security advisories and SHOULD update the `revoked_models` section of the Trust List within 24 hours of a confirmed model compromise disclosure.
 
-**Limitation**: Model revocation via the Trust List can only downgrade effective integrity rank — it cannot retroactively invalidate actions already taken based on artifacts from a revoked model. This is a fundamental limitation of any post-hoc revocation scheme. Deployers in high-stakes environments (financial, medical, legal) SHOULD implement compensating controls: audit reviews of all actions driven by AI artifacts during the compromise window.
+**Limitation**: Model revocation via the Trust List can only downgrade effective integrity rank - it cannot retroactively invalidate actions already taken based on artifacts from a revoked model. This is a fundamental limitation of any post-hoc revocation scheme. Deployers in high-stakes environments (financial, medical, legal) SHOULD implement compensating controls: audit reviews of all actions driven by AI artifacts during the compromise window.
 
 ---
 
@@ -1702,7 +1702,7 @@ A consumer implementing this document MUST:
 2. Apply default values for absent extension fields per Section 5.1 P5 (content class defaults to `external-content/raw`; federation fields default to single-gateway mode; ai_provenance absent means no artifact provenance is available).
 3. Not require the extended fields for basic integrity enforcement (Sections 5 through 7 features are gated on the presence of their respective fields).
 
-The `schema_version` field in the envelope MUST be updated to `"v0.2"` when any extension field from §5–§7 is present. Envelopes implementing only the signing mechanism in §4.2 use `"v0.1"`. Consumers MUST be able to process both versions.
+The `schema_version` field in the envelope MUST be updated to `"v0.2"` when any extension field from §5-§7 is present. Envelopes implementing only the signing mechanism in §4.2 use `"v0.1"`. Consumers MUST be able to process both versions.
 
 ### 8.2. Version Negotiation and Graceful Degradation
 
@@ -1710,9 +1710,9 @@ Extension-aware peers advertise support by including a `capabilities` object in 
 
 **When a peer does not advertise capability:**
 
-- The extension-aware peer falls back to **advisory-only mode** (Layer B only — see §4.2.1). It MUST surface a downgrade indication to the operator (log entry, metric, or health signal) so that the absence of cryptographic guarantees is not silent.
+- The extension-aware peer falls back to **advisory-only mode** (Layer B only - see §4.2.1). It MUST surface a downgrade indication to the operator (log entry, metric, or health signal) so that the absence of cryptographic guarantees is not silent.
 - Connectivity is preserved; only the cryptographic enforcement layer is absent.
-- This fallback is explicitly NOT suitable for zero-trust deployments — see §9.11 (Downgrade Attacks).
+- This fallback is explicitly NOT suitable for zero-trust deployments - see §9.11 (Downgrade Attacks).
 
 **Feature-level negotiation:** Extensions are independently optional. A peer MAY support the signed-envelope mechanism (§4.2) without federation (§6) or artifact provenance (§7). Each feature is negotiated separately:
 
@@ -1723,7 +1723,7 @@ Extension-aware peers advertise support by including a `capabilities` object in 
 | Federation | `sep1913_federation: true` | §4.2 + §6 |
 | Artifact provenance | `sep1913_ape: true` | §4.2 + §7 |
 
-**Graceful degradation guarantee:** An extension-aware consumer talking to a v0.1-only peer MUST remain functionally interoperable — losing only cryptographic guarantees, never MCP connectivity. Sinks that declare `require_content_class: true` or `required_integrity > 0` SHOULD configure fallback behavior (deny-by-default or flag-for-review) when operating in advisory mode.
+**Graceful degradation guarantee:** An extension-aware consumer talking to a v0.1-only peer MUST remain functionally interoperable - losing only cryptographic guarantees, never MCP connectivity. Sinks that declare `require_content_class: true` or `required_integrity > 0` SHOULD configure fallback behavior (deny-by-default or flag-for-review) when operating in advisory mode.
 
 **During the transition period** (§8.1), gateway operators MAY emit both `v0.1` and `v0.2` envelope keys simultaneously. Extension-aware consumers prefer the `v0.2` key; v0.1-only consumers use the `v0.1` key and ignore unrecognized `_meta` fields.
 
@@ -1874,7 +1874,7 @@ The signing input for the extended envelope is the JCS (RFC 8785) canonical JSON
 }
 ```
 
-Note: `forwarded_envelope` is NOT included inline in the signing input — only its hash (`forwarded_envelope_hash`) is committed. This prevents the signing input from becoming arbitrarily large due to nested envelope chains. The verifier MUST compute the hash of the received `forwarded_envelope` and compare it to `forwarded_envelope_hash` before verifying the outer signature.
+Note: `forwarded_envelope` is NOT included inline in the signing input - only its hash (`forwarded_envelope_hash`) is committed. This prevents the signing input from becoming arbitrarily large due to nested envelope chains. The verifier MUST compute the hash of the received `forwarded_envelope` and compare it to `forwarded_envelope_hash` before verifying the outer signature.
 
 For APE signing (Section 7.2), the signing input is the JCS canonical JSON of all APE fields except `sig`, including the full `pipeline_path` array.
 
@@ -1891,12 +1891,12 @@ This section defines what constitutes a breaking versus non-breaking change to t
 
 **Breaking changes** (major version bump or new capability key):
 - Adding new required fields to the envelope schema
-- Changing the signing input construction (§8.4) — existing signatures would fail verification
+- Changing the signing input construction (§8.4) - existing signatures would fail verification
 - Changing the Trust List format (§6.2) in ways that require new parser logic
 - Removing or renaming existing capability keys (§8.2)
 - Changing the semantics of existing fields (e.g., redefining `integrity_rank` scale)
 
-**Extension lifecycle**: Future extensions to this specification SHOULD be published as separate community proposals referencing this document, following the same SEP process used for SEP-1913. Backward compatibility is maintained by the capability negotiation mechanism defined in §8.2 — a peer that does not advertise a new capability key MUST be treated as not supporting that extension, and the extension-aware peer MUST degrade gracefully rather than failing connectivity.
+**Extension lifecycle**: Future extensions to this specification SHOULD be published as separate community proposals referencing this document, following the same SEP process used for SEP-1913. Backward compatibility is maintained by the capability negotiation mechanism defined in §8.2 - a peer that does not advertise a new capability key MUST be treated as not supporting that extension, and the extension-aware peer MUST degrade gracefully rather than failing connectivity.
 
 **Deprecation**: Fields or behaviors that are deprecated in a future revision SHOULD remain supported for at least one major version transition to allow implementers time to migrate. Deprecations SHOULD be announced via the Open Issues mechanism (§14) before being finalized.
 
@@ -1912,23 +1912,23 @@ This section defines what constitutes a breaking versus non-breaking change to t
 
 **Residual risk**: A malicious gateway operator could mis-classify a tool server's content class in the registry. This risk is mitigated by the Trust List's trust scope constraints (Section 6.3): a labeler sub-CA's trust scope bounds the content classes it may assert. A misconfiguration that assigns `search-result/internal` to an external web-search tool can be detected by auditors reviewing the transparency log against the declared trust scope. The proxy-assignment model for content class mirrors the integrity rank proxy-assignment from §4.2.
 
-**Residual risk — multi-class omission**: A gateway might detect only some content types in a result (e.g., detecting PII but missing that the result also contains financial data), assigning an incomplete union. This can occur with complex or obfuscated payloads. Deployers SHOULD implement content scanning at the gateway using dedicated classifiers, not only pattern matching, for high-sensitivity content classes.
+**Residual risk - multi-class omission**: A gateway might detect only some content types in a result (e.g., detecting PII but missing that the result also contains financial data), assigning an incomplete union. This can occur with complex or obfuscated payloads. Deployers SHOULD implement content scanning at the gateway using dedicated classifiers, not only pattern matching, for high-sensitivity content classes.
 
 ### 9.2. Federation Trust List Attacks
 
-**Threat 1 — Trust List rollback**: An attacker in a network-privileged position replaces the Trust List with an older version (lower sequence number) that includes a revoked sub-CA.
+**Threat 1 - Trust List rollback**: An attacker in a network-privileged position replaces the Trust List with an older version (lower sequence number) that includes a revoked sub-CA.
 
 **Mitigation**: Verifiers MUST reject Trust Lists with sequence numbers less than or equal to the last accepted sequence number (Section 6.2). Verifiers MUST maintain the last accepted sequence number persistently. Combined with Trust List TTL enforcement, this prevents serving stale Trust Lists beyond the TTL window.
 
-**Threat 2 — Governance key compromise**: An attacker obtains one governance key and uses it to push a Trust List update adding a malicious sub-CA.
+**Threat 2 - Governance key compromise**: An attacker obtains one governance key and uses it to push a Trust List update adding a malicious sub-CA.
 
 **Mitigation**: M-of-N governance signature requirement (Section 6.6). With M=2, a single key compromise is insufficient. With M=3 (recommended for large federations), an attacker must compromise 3 keys simultaneously. All Trust List updates are logged to the transparency log; the monitoring requirement (Section 6.4) means unauthorized updates are detectable within the monitoring poll interval.
 
-**Threat 3 — Trust scope evasion**: A compromised labeler attempts to assert a content class or integrity rank outside its registered trust scope.
+**Threat 3 - Trust scope evasion**: A compromised labeler attempts to assert a content class or integrity rank outside its registered trust scope.
 
 **Mitigation**: Trust scope is enforced by the receiving verifier (Section 6.3), not by the labeler itself. Even if a labeler generates an out-of-scope assertion, the verifier rejects it. The labeler cannot modify its own trust scope entry in the Trust List (only governance key holders can update the Trust List).
 
-**Threat 4 — Trust List distribution compromise**: An attacker compromises the Trust List distribution server and serves a modified Trust List.
+**Threat 4 - Trust List distribution compromise**: An attacker compromises the Trust List distribution server and serves a modified Trust List.
 
 **Mitigation**: The Trust List is signed by M-of-N governance keys. A modified Trust List has an invalid signature and MUST be rejected by verifiers. Distribution server compromise results in denial of service (verifiers cannot obtain a fresh Trust List) but not trust bypass, because the signature verification requirement does not depend on the distribution server's integrity.
 
@@ -1938,11 +1938,11 @@ This section defines what constitutes a breaking versus non-breaking change to t
 
 **Mitigation**: For entries with `inclusion_proof_required: true`, verifiers MUST verify the inclusion proof before trusting the entry (Section 6.4). An inclusion proof can only be forged by breaking the Merkle tree's hash function (SHA-256), which is computationally infeasible with current algorithms.
 
-**Threat — log availability attack**: An attacker takes the transparency log offline at the moment a verifier needs to check an inclusion proof, preventing new sub-CAs from being validated.
+**Threat - log availability attack**: An attacker takes the transparency log offline at the moment a verifier needs to check an inclusion proof, preventing new sub-CAs from being validated.
 
-**Mitigation**: Verifiers SHOULD cache successfully verified inclusion proofs with a TTL of at least the leaf certificate TTL (15 minutes). For entries whose inclusion proofs have been previously verified and cached, the cache MAY be used during log unavailability. New sub-CAs (no cache entry) fail closed — the verifier MUST reject envelopes from uncached sub-CAs when the log is unavailable and `inclusion_proof_required: true`.
+**Mitigation**: Verifiers SHOULD cache successfully verified inclusion proofs with a TTL of at least the leaf certificate TTL (15 minutes). For entries whose inclusion proofs have been previously verified and cached, the cache MAY be used during log unavailability. New sub-CAs (no cache entry) fail closed - the verifier MUST reject envelopes from uncached sub-CAs when the log is unavailable and `inclusion_proof_required: true`.
 
-**Threat — split-view attack**: The transparency log shows different tree heads to different verifiers, allowing the log operator to present one view to monitors and another to verifiers.
+**Threat - split-view attack**: The transparency log shows different tree heads to different verifiers, allowing the log operator to present one view to monitors and another to verifiers.
 
 **Mitigation**: This is an inherent risk of any transparency log that does not have a consistency-proof mechanism (Gossip protocol). Deployers SHOULD implement a Gossip protocol per RFC 6962bis to detect split views. This is listed as Future Work (Section 13) for this specification.
 
@@ -1950,7 +1950,7 @@ This section defines what constitutes a breaking versus non-breaking change to t
 
 **Threat**: A compromised labeler or a rogue inference proxy substitutes a different model's output (from a jailbroken or compromised model) while asserting the `model_id` of a trusted model in the APE.
 
-**Mitigation (scope)**: The `model_commitment_hash` (Section 7.2.1) is a digest over the *self-asserted* tuple `(model_id, model_version, inference_endpoint)`; it is not a secret and any party can recompute it from those public strings. Its security value is therefore narrow and precise: by being inside the JWS-signed APE, it binds the labeler non-repudiably to the model identity it asserted, and prevents a *relay or network intermediary* from silently rewriting the asserted model identity without invalidating the signature. It does NOT independently verify that the asserted model actually produced the output — a labeler (or anyone who controls the inference path) can assert any identity it likes. Honest model-identity assurance therefore rests on trusting the labeler to call the model API directly through the stated `inference_endpoint`; the commitment hash records that assertion, it does not prove it. Strong assurance requires the hardware attestation noted under Residual Risk.
+**Mitigation (scope)**: The `model_commitment_hash` (Section 7.2.1) is a digest over the *self-asserted* tuple `(model_id, model_version, inference_endpoint)`; it is not a secret and any party can recompute it from those public strings. Its security value is therefore narrow and precise: by being inside the JWS-signed APE, it binds the labeler non-repudiably to the model identity it asserted, and prevents a *relay or network intermediary* from silently rewriting the asserted model identity without invalidating the signature. It does NOT independently verify that the asserted model actually produced the output - a labeler (or anyone who controls the inference path) can assert any identity it likes. Honest model-identity assurance therefore rests on trusting the labeler to call the model API directly through the stated `inference_endpoint`; the commitment hash records that assertion, it does not prove it. Strong assurance requires the hardware attestation noted under Residual Risk.
 
 **Residual risk**: The `model_commitment_hash` is a commitment to the model identity string, not to the model weights. An attacker who has compromised the model serving infrastructure and can substitute the weights while returning the correct model_id string in API responses can defeat this mechanism. This is a fundamental limitation of any API-level provenance scheme that cannot inspect model weights directly. Hardware-level attestation (e.g., AMD SEV-SNP or Intel TDX for inference environments) is the correct defense at this level but is out of scope for this specification.
 
@@ -1960,7 +1960,7 @@ This section defines what constitutes a breaking versus non-breaking change to t
 
 **Mitigation**: The `pipeline_path` is append-only and each step's `integrity_rank` is recorded by the gateway/agent framework, not by the agent itself. The APE's top-level `integrity_rank` is computed as the minimum across all pipeline path steps and is verified by the labeler before signing. An agent cannot self-promote its output's integrity rank. This mirrors the proxy-assignment principle from §4.2 extended to multi-agent pipelines.
 
-**Threat — path truncation**: An attacker removes steps from the `pipeline_path` before the APE is signed, hiding that a high-rank output derived from a low-rank source.
+**Threat - path truncation**: An attacker removes steps from the `pipeline_path` before the APE is signed, hiding that a high-rank output derived from a low-rank source.
 
 **Mitigation**: Each step in the `pipeline_path` includes a reference to the previous step's output artifact ID and (where available) the trust envelope reference for tool results. Verifiers SHOULD traverse the pipeline_path and verify that the chain is complete and consistent. Gaps in the path (missing steps or unexplained jumps in artifact IDs) MUST be treated as trust failures.
 
@@ -1968,35 +1968,35 @@ This section defines what constitutes a breaking versus non-breaking change to t
 
 ### 9.6. BLP Declassification Attacks (Open Problem)
 
-**Threat**: An attacker constructs a request that routes high-classification content through a multi-step pipeline designed to "process" the content and re-label the output as lower classification. For example: feed `pii/ssn` data to an LLM summarizer that produces an `ai-output/llm-response`, then claim the output is only `ai-output/llm-response` (conf floor: public) and route it to a public logging sink. This is the AI-pipeline equivalent of a classical BLP declassification attack, and it is already occurring in practice against enterprise DLP systems — users paste SSNs or confidential documents into LLMs, obtain paraphrased summaries, and the output evades pattern-based classifiers.
+**Threat**: An attacker constructs a request that routes high-classification content through a multi-step pipeline designed to "process" the content and re-label the output as lower classification. For example: feed `pii/ssn` data to an LLM summarizer that produces an `ai-output/llm-response`, then claim the output is only `ai-output/llm-response` (conf floor: public) and route it to a public logging sink. This is the AI-pipeline equivalent of a classical BLP declassification attack, and it is already occurring in practice against enterprise DLP systems - users paste SSNs or confidential documents into LLMs, obtain paraphrased summaries, and the output evades pattern-based classifiers.
 
-**Why this specification does not fully mitigate it**: The attack requires that the labeler classify LLM output based solely on the artifact type (`ai-output/llm-response`) rather than on the semantic content of the inputs that produced it. For this specification to prevent the attack, two conditions must both hold: (1) the agent orchestration layer faithfully records all classified inputs in the APE pipeline_path, and (2) the labeler enforces the strictest input floor on the output's effective class. Condition (1) is assumption, not enforcement — an attacker who controls the agent harness can omit inputs from the pipeline_path, defeating condition (2). There is currently no cryptographic mechanism in this specification that forces a pipeline to declare all its inputs. This is an open problem in AI information-flow control; see also §14 (Open Issues) and the FIDES [FIDES25] and CaMeL [CaMeL25] work on per-value taint tracking as a research direction toward a real solution.
+**Why this specification does not fully mitigate it**: The attack requires that the labeler classify LLM output based solely on the artifact type (`ai-output/llm-response`) rather than on the semantic content of the inputs that produced it. For this specification to prevent the attack, two conditions must both hold: (1) the agent orchestration layer faithfully records all classified inputs in the APE pipeline_path, and (2) the labeler enforces the strictest input floor on the output's effective class. Condition (1) is assumption, not enforcement - an attacker who controls the agent harness can omit inputs from the pipeline_path, defeating condition (2). There is currently no cryptographic mechanism in this specification that forces a pipeline to declare all its inputs. This is an open problem in AI information-flow control; see also §14 (Open Issues) and the FIDES [FIDES25] and CaMeL [CaMeL25] work on per-value taint tracking as a research direction toward a real solution.
 
-**What deployers can do in the interim**: Treat any LLM output that could have been derived from high-classification inputs as carrying the highest classification of those inputs, by policy — not by relying on pipeline_path propagation. Apply explicit `content_class_denylist` rules on sensitive sinks to block processed-content classes entirely, regardless of what the APE claims. This is a conservative operational posture, not a protocol-level guarantee.
+**What deployers can do in the interim**: Treat any LLM output that could have been derived from high-classification inputs as carrying the highest classification of those inputs, by policy - not by relying on pipeline_path propagation. Apply explicit `content_class_denylist` rules on sensitive sinks to block processed-content classes entirely, regardless of what the APE claims. This is a conservative operational posture, not a protocol-level guarantee.
 
 ### 9.7. APE Replay and Binding Attacks
 
-**Threat 1 — APE replay**: An attacker captures a valid APE for a trusted AI artifact and attaches it to a different (malicious) artifact, attempting to pass the malicious artifact off as trustworthy.
+**Threat 1 - APE replay**: An attacker captures a valid APE for a trusted AI artifact and attaches it to a different (malicious) artifact, attempting to pass the malicious artifact off as trustworthy.
 
 **Mitigation**: The APE's `artifact_hash` binds the envelope to the exact artifact bytes. A verifier MUST recompute the artifact's hash and compare it to `artifact_hash` before accepting the APE. Any mismatch MUST cause rejection. This is the same defense as the content hash binding in the signed envelope (§4.2), extended to artifact provenance.
 
-**Threat 2 — APE sidecar substitution**: In sidecar mode (Section 7.4), the APE file and artifact file are separate. An attacker replaces the sidecar APE with a different APE (from a different artifact) while keeping the malicious artifact.
+**Threat 2 - APE sidecar substitution**: In sidecar mode (Section 7.4), the APE file and artifact file are separate. An attacker replaces the sidecar APE with a different APE (from a different artifact) while keeping the malicious artifact.
 
 **Mitigation**: Because the APE's `artifact_hash` must match the artifact's content, a substituted APE (from a different, legitimate artifact) will have a different `artifact_hash` and will fail verification. Verifiers MUST always verify `artifact_hash` against the actual artifact content, even in sidecar mode. Deployers SHOULD use atomic storage operations (write artifact and sidecar together) to reduce the window for substitution attacks.
 
-**Threat 3 — pipeline_path forgery**: An attacker forges a pipeline_path that claims a clean origin (no web search steps) for an artifact that was actually derived from external content.
+**Threat 3 - pipeline_path forgery**: An attacker forges a pipeline_path that claims a clean origin (no web search steps) for an artifact that was actually derived from external content.
 
-**Mitigation**: Each pipeline step that involves a tool call MUST include an `envelope_ref` pointing to the signed trust envelope (v0.1 or v0.2) for that tool result. Verifiers SHOULD dereference `envelope_ref` entries and verify that the referenced tool result envelopes are valid and consistent with the step's declared `integrity_rank`. A forged path that claims rank 2 for a web search step would require the attacker to produce a valid signed envelope (§4.2) for a web search result with rank 2 — which is impossible if the gateway correctly assigns rank 0 to untrustedPublic sources.
+**Mitigation**: Each pipeline step that involves a tool call MUST include an `envelope_ref` pointing to the signed trust envelope (v0.1 or v0.2) for that tool result. Verifiers SHOULD dereference `envelope_ref` entries and verify that the referenced tool result envelopes are valid and consistent with the step's declared `integrity_rank`. A forged path that claims rank 2 for a web search step would require the attacker to produce a valid signed envelope (§4.2) for a web search result with rank 2 - which is impossible if the gateway correctly assigns rank 0 to untrustedPublic sources.
 
 For pipeline steps involving LLM inference (no tool call), there is no `envelope_ref`. The integrity_rank for these steps is computed from the agent's own rank and its input ranks. An attacker who can forge input artifact IDs can potentially insert false steps. This is mitigated by requiring each intermediate artifact's APE to be stored and retrievable, and by requiring the step's `input_artifact_ids` to reference existing, verified APEs. Full mitigation requires an artifact store with append-only semantics and content-addressed storage (artifact_id is a function of artifact_hash, not an arbitrary UUID).
 
 ### 9.8. Confused Deputy and Privilege Escalation
 
-**Threat**: A gateway holds credentials with broad upstream scope. A lower-trust caller induces the gateway to act on its behalf beyond the caller's own authority — the classic confused-deputy scenario. In the MCP context: a caller with low Biba rank manipulates the gateway into forwarding a high-integrity tool call, or a client with no clearance for `secret`-floor content routes a request through a gateway that does have that clearance.
+**Threat**: A gateway holds credentials with broad upstream scope. A lower-trust caller induces the gateway to act on its behalf beyond the caller's own authority - the classic confused-deputy scenario. In the MCP context: a caller with low Biba rank manipulates the gateway into forwarding a high-integrity tool call, or a client with no clearance for `secret`-floor content routes a request through a gateway that does have that clearance.
 
 **Mitigation**: Trust scope (§6.3) bounds each labeler sub-CA to the server IDs, content classes, and maximum integrity ranks it may assert. The receiving verifier enforces trust scope, not the labeler itself (§6.3 step 5). Gateways operating in re-sign mode (§6.5) MUST NOT widen the outer integrity rank above the inner rank, and MUST NOT assert a less restrictive content class than the forwarded envelope.
 
-**Privilege escalation** is the downstream consequence of a successful confused-deputy attack: the attacker's data reaches a sink it would not otherwise reach. The layered defense (Biba check → BLP check → allowlist gate — see §5.4 flowchart) provides defense in depth: an escalation attempt must clear all three checks, not just one.
+**Privilege escalation** is the downstream consequence of a successful confused-deputy attack: the attacker's data reaches a sink it would not otherwise reach. The layered defense (Biba check → BLP check → allowlist gate - see §5.4 flowchart) provides defense in depth: an escalation attempt must clear all three checks, not just one.
 
 **Residual risk**: A gateway operator who misconfigures trust scope entries can inadvertently grant excessive authority. The transparency log (§6.4) and monitoring requirement provide external auditability.
 
@@ -2004,7 +2004,7 @@ For pipeline steps involving LLM inference (no tool call), there is no `envelope
 
 **Threat (malicious server)**: A malicious tool server emits correctly-formatted MCP responses with content designed to manipulate downstream AI behavior (prompt injection, jailbreak payloads, exfiltration triggers).
 
-**Mitigation**: Per Design Principle P1 (§5.1), content classes are assigned by the gateway from its registry — the tool server has no control over its own integrity rank or content class. Layer A (§4.2.1) binds the content hash to the label; a server cannot make its malicious output appear trusted. The Biba minimum operation (§7.6) ensures that tainted data contaminates the entire pipeline path.
+**Mitigation**: Per Design Principle P1 (§5.1), content classes are assigned by the gateway from its registry - the tool server has no control over its own integrity rank or content class. Layer A (§4.2.1) binds the content hash to the label; a server cannot make its malicious output appear trusted. The Biba minimum operation (§7.6) ensures that tainted data contaminates the entire pipeline path.
 
 **Threat (compromised client)**: A compromised consumer ignores envelope verification entirely, acting on any result regardless of its label.
 
@@ -2034,7 +2034,7 @@ For APE replay (artifact provenance envelopes), the `artifact_hash` binds the AP
 - **Extension stripping**: consumers configured in enforcing mode (non-advisory) MUST treat the absence of a required `v0.2` envelope as a verification failure, not a graceful fallback. This SHOULD be the default in zero-trust deployments.
 - **Advisory fallback**: in non-zero-trust deployments, advisory mode is a legitimate operating state during transitions. Operators MUST be notified when enforcing mode degrades to advisory (§8.2 version negotiation).
 
-**Residual risk**: Advisory mode (Layer B only) provides no cryptographic guarantees — it is a probabilistic hint to LLMs, not a security control. Deployers that cannot enforce Layer A SHOULD compensate with human review at high-consequence sinks.
+**Residual risk**: Advisory mode (Layer B only) provides no cryptographic guarantees - it is a probabilistic hint to LLMs, not a security control. Deployers that cannot enforce Layer A SHOULD compensate with human review at high-consequence sinks.
 
 ---
 
@@ -2042,9 +2042,9 @@ For APE replay (artifact provenance envelopes), the `artifact_hash` binds the AP
 
 ### 10.1. Metadata Disclosure
 
-APE envelopes (§7) carry `model_id`, `model_version`, `inference_endpoint`, and a full `pipeline_path` listing agent identities, tool servers, timestamps, and per-step content classes. This information reveals internal architecture — the model version in use, the agent topology, and which tool servers handle what data types — to any party that receives the APE.
+APE envelopes (§7) carry `model_id`, `model_version`, `inference_endpoint`, and a full `pipeline_path` listing agent identities, tool servers, timestamps, and per-step content classes. This information reveals internal architecture - the model version in use, the agent topology, and which tool servers handle what data types - to any party that receives the APE.
 
-**Mitigations**: Producers MAY omit `pipeline_path` node identifiers (replacing agent IDs with opaque hashes) when downstream consumers do not require per-step auditability. The `generation_params` object MUST be hashed into `generation_params_hash` — it MUST NOT be carried in clear in the envelope (§7.2.2). Deployers SHOULD evaluate which APE fields are strictly necessary for their downstream verification use case and omit the rest.
+**Mitigations**: Producers MAY omit `pipeline_path` node identifiers (replacing agent IDs with opaque hashes) when downstream consumers do not require per-step auditability. The `generation_params` object MUST be hashed into `generation_params_hash` - it MUST NOT be carried in clear in the envelope (§7.2.2). Deployers SHOULD evaluate which APE fields are strictly necessary for their downstream verification use case and omit the rest.
 
 ### 10.2. Execution-Origin Information
 
@@ -2054,7 +2054,7 @@ The Trust List (§6.2) and per-envelope `federation` sub-object carry `org_id` a
 
 ### 10.3. Telemetry and Data Minimization
 
-Transparency-log inclusion (§6.4) creates a permanent, externally auditable record of sub-CA registrations. The log MUST contain only commitments and hashes — `sub_ca_spki_fp`, `entry_id`, governance signatures — never content payloads, PII, or tool result data. Implementations SHOULD apply data minimization: carry only the envelope fields required by the verifier's policy.
+Transparency-log inclusion (§6.4) creates a permanent, externally auditable record of sub-CA registrations. The log MUST contain only commitments and hashes - `sub_ca_spki_fp`, `entry_id`, governance signatures - never content payloads, PII, or tool result data. Implementations SHOULD apply data minimization: carry only the envelope fields required by the verifier's policy.
 
 ### 10.4. User Consent and Enterprise Audit
 
@@ -2064,7 +2064,7 @@ Provenance recording is simultaneously a feature (audit trail, forensics) and a 
 - The legal basis for retention under applicable data-protection regulation.
 - The process by which a data subject may request deletion of provenance records associated with their activity.
 
-The inherent tension — provenance minimization weakens audit; full provenance raises surveillance concerns — cannot be resolved by the protocol. Deployers MUST resolve it in their privacy governance. This specification makes the tension explicit so that governance decisions are informed rather than accidental.
+The inherent tension - provenance minimization weakens audit; full provenance raises surveillance concerns - cannot be resolved by the protocol. Deployers MUST resolve it in their privacy governance. This specification makes the tension explicit so that governance decisions are informed rather than accidental.
 
 ---
 
@@ -2119,7 +2119,7 @@ The following items are explicitly out of scope for this proposal and are candid
 
 **Streaming artifact provenance**: The APE (Section 7.2) assumes a complete artifact is available at signing time. For streaming LLM outputs (token-by-token), the full artifact hash cannot be computed until generation is complete. A follow-on proposal should define a streaming-compatible provenance scheme (e.g., progressive hashing, or a commitment to the final hash published after stream completion).
 
-**RBAC integration for content class access**: This specification defines content class policies at the tool/sink level. A follow-on proposal should define how content class restrictions integrate with role-based access control — e.g., a user with the `analyst` role may access `search-result/internal` but not `financial/trade-order`, even when the sink's policy would otherwise permit it.
+**RBAC integration for content class access**: This specification defines content class policies at the tool/sink level. A follow-on proposal should define how content class restrictions integrate with role-based access control - e.g., a user with the `analyst` role may access `search-result/internal` but not `financial/trade-order`, even when the sink's policy would otherwise permit it.
 
 ---
 
@@ -2127,13 +2127,13 @@ The following items are explicitly out of scope for this proposal and are candid
 
 The following design questions are unresolved and presented for community discussion. Comments are welcome via the channels listed in the Community Feedback section.
 
-1. **Execution locality — MUST or advisory?** Should label-assertion locality (the requirement that labels be assigned by a gateway proxy, not by the tool server) be a hard MUST for all conformant implementations, or SHOULD — allowing direct-server labeling with documented trade-offs? The current text uses MUST (§4.2.1 P1), but an equivalence clause permits alternative architectures. Whether that equivalence clause is sufficient or whether mandatory gateway interposition is required for interoperability is an open question.
+1. **Execution locality - MUST or advisory?** Should label-assertion locality (the requirement that labels be assigned by a gateway proxy, not by the tool server) be a hard MUST for all conformant implementations, or SHOULD - allowing direct-server labeling with documented trade-offs? The current text uses MUST (§4.2.1 P1), but an equivalence clause permits alternative architectures. Whether that equivalence clause is sufficient or whether mandatory gateway interposition is required for interoperability is an open question.
 
-2. **Locality negotiation during MCP capability exchange.** Should execution-locality and labeling capability be formally negotiated as part of the MCP `initialize` / capabilities exchange? The current version negotiation (§8.2) covers extension version but not deployment topology. Explicit locality negotiation would let servers declare whether they support gateway-mediated or direct labeling — enabling clients to make explicit trust decisions.
+2. **Locality negotiation during MCP capability exchange.** Should execution-locality and labeling capability be formally negotiated as part of the MCP `initialize` / capabilities exchange? The current version negotiation (§8.2) covers extension version but not deployment topology. Explicit locality negotiation would let servers declare whether they support gateway-mediated or direct labeling - enabling clients to make explicit trust decisions.
 
 3. **Cryptographic verifiability of trust metadata.** Should trust-scope entries in the Trust List (§6.3) be cryptographically signed by the asserting organization's own key, so that a verifier can confirm the scope claim rather than relying solely on governance-root attestation? This would add complexity (per-org signing keys) but reduce the blast radius of a governance-root compromise.
 
-4. **Machine-readable execution policies.** Should the sink policy grammar (§5.6) be standardized as a machine-readable, interchangeable format — so that policies can be shared across gateway implementations and audited without reading implementation code? The current spec defines a structured object but leaves the registry format to the implementation.
+4. **Machine-readable execution policies.** Should the sink policy grammar (§5.6) be standardized as a machine-readable, interchangeable format - so that policies can be shared across gateway implementations and audited without reading implementation code? The current spec defines a structured object but leaves the registry format to the implementation.
 
 5. **Streaming artifact provenance.** The APE (§7.2) assumes a complete artifact at signing time. For streaming LLM outputs, a hash cannot be committed until generation completes. Should a streaming-compatible provenance scheme (e.g., progressive hash commitment, or a post-stream hash publication with a nonce linking to the in-flight stream) be standardized in this document or deferred to a follow-on proposal?
 
@@ -2143,7 +2143,7 @@ The following design questions are unresolved and presented for community discus
 
 ## 14. References
 
-References marked **(N)** are required reading for anyone implementing this proposal — they define protocols or schemas this specification builds on directly. All others are background and related work.
+References marked **(N)** are required reading for anyone implementing this proposal - they define protocols or schemas this specification builds on directly. All others are background and related work.
 
 [RFC2119] Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels," BCP 14, RFC 2119, March 1997. **(N)**
 https://www.rfc-editor.org/rfc/rfc2119
@@ -2169,7 +2169,7 @@ https://www.rfc-editor.org/rfc/rfc8551
 https://www.rfc-editor.org/rfc/rfc8785
 (All signing inputs use JCS to ensure deterministic byte sequences.)
 
-[MCP-SPEC] Anthropic, "Model Context Protocol Specification," 2024–2026. **(N)**
+[MCP-SPEC] Anthropic, "Model Context Protocol Specification," 2024-2026. **(N)**
 https://modelcontextprotocol.io/specification
 (Canonical MCP specification: `CallToolResult`, `_meta` field conventions, and tool result schemas this proposal extends.)
 
@@ -2178,7 +2178,7 @@ https://modelcontextprotocol.io/docs/concepts/architecture
 
 [MCP-TOOLS] Anthropic, "MCP Tools Specification," Model Context Protocol documentation. **(N)**
 https://modelcontextprotocol.io/docs/concepts/tools
-(`tools/call` and `tools/list` protocol messages, `CallToolResult` schema, and `_meta` field — the signing target for the envelope mechanism in §4.2.)
+(`tools/call` and `tools/list` protocol messages, `CallToolResult` schema, and `_meta` field - the signing target for the envelope mechanism in §4.2.)
 
 [SEP-1913] MCP Community, "SEP-1913: Trust and Sensitivity Annotations for Tool Results," GitHub PR #1913, 2025. **(N)**
 https://github.com/modelcontextprotocol/modelcontextprotocol/pull/1913
@@ -2193,7 +2193,7 @@ https://apps.dtic.mil/sti/citations/AD0770768
 
 [Biba77] Biba, K.J., "Integrity Considerations for Secure Computer Systems," MITRE Corporation Technical Report ESD-TR-76-372, 1977.
 https://apps.dtic.mil/sti/citations/ADA039324
-(The ★-integrity property — "no write up" — that the signed envelope session taint floor (§4.2) implements. This document extends Biba taint to multi-agent pipeline paths and AI artifact provenance.)
+(The ★-integrity property - "no write up" - that the signed envelope session taint floor (§4.2) implements. This document extends Biba taint to multi-agent pipeline paths and AI artifact provenance.)
 
 [CaMeL25] Debenedetti, E., Shumailov, I., Fan, T., Hayes, J., Carlini, N., Fabian, D., Kern, C., Shi, C., Terzis, A., and Tramèr, F., "Defeating Prompt Injections by Design," arXiv:2503.18813, March 2025.
 https://arxiv.org/abs/2503.18813
@@ -2207,7 +2207,7 @@ https://arxiv.org/abs/2505.23643
 https://arxiv.org/abs/2404.13208
 (OpenAI's approach to model-side instruction hierarchy enforcement. Complements the proxy-side deterministic controls in this specification by reducing model susceptibility to injection in well-trained models. The two layers are orthogonal.)
 
-[Merkle87] Merkle, R.C., "A Digital Signature Based on a Conventional Encryption Function," Advances in Cryptology — CRYPTO '87, Lecture Notes in Computer Science, vol. 293, Springer, 1988. DOI: 10.1007/3-540-48184-2_32
+[Merkle87] Merkle, R.C., "A Digital Signature Based on a Conventional Encryption Function," Advances in Cryptology - CRYPTO '87, Lecture Notes in Computer Science, vol. 293, Springer, 1988. DOI: 10.1007/3-540-48184-2_32
 (The Merkle tree structure used in the transparency log design of §6.4.)
 
 [Rekor] Sigstore Project, "Rekor: Software Supply Chain Transparency Log."
@@ -2230,9 +2230,9 @@ https://arxiv.org/abs/2402.06363
 https://arxiv.org/abs/2410.05451
 (StruQ and SecAlign train models to treat structured prompt channels differently from data channels. Complementary to the proxy-side controls in this specification; both approaches reduce injection risk orthogonally.)
 
-[DLM00] Myers, A.C., and Liskov, B., "Protecting Privacy using the Decentralized Label Model," ACM Transactions on Software Engineering and Methodology, 9(4):410–442, 2000.
+[DLM00] Myers, A.C., and Liskov, B., "Protecting Privacy using the Decentralized Label Model," ACM Transactions on Software Engineering and Methodology, 9(4):410-442, 2000.
 https://www.cs.cornell.edu/andru/papers/iflow-tosem.pdf
-(The Decentralized Label Model (DLM) provides the formal foundation for "labels travel with data; join on combine; gate at sink" — the minimal subset this specification implements in §5.6 and §7.5.)
+(The Decentralized Label Model (DLM) provides the formal foundation for "labels travel with data; join on combine; gate at sink" - the minimal subset this specification implements in §5.6 and §7.5.)
 
 [Willison23] Willison, S., "Delimiters won't save you from prompt injection," May 2023.
 https://simonwillison.net/2023/May/11/delimiters-wont-save-you/
@@ -2242,7 +2242,7 @@ https://simonwillison.net/2023/May/11/delimiters-wont-save-you/
 https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/
 (Framing of the three conditions that make an agent unconditionally exploitable: private data + untrusted content + exfiltration channel. The Biba enforcement model in §4.2 and this specification directly addresses this threat model.)
 
-[MCP-INSPECTOR] Anthropic, "MCP Inspector — a tool for testing and debugging MCP servers."
+[MCP-INSPECTOR] Anthropic, "MCP Inspector - a tool for testing and debugging MCP servers."
 https://modelcontextprotocol.io/docs/tools/inspector
 (Reference tool for validating MCP protocol conformance during implementation.)
 
@@ -2260,7 +2260,7 @@ https://c2pa.org/
 
 [RTBAS25] Zhong, P.Y., Chen, S., Wang, R., McCall, M., Titzer, B.L., Miller, H., and Gibbons, P.B., "RTBAS: Defending LLM Agents Against Prompt Injection and Privacy Leakage," Carnegie Mellon University / Two Sigma, arXiv:2502.08966, February 2025.
 https://arxiv.org/abs/2502.08966
-(Adapts information-flow control to tool-based agent systems, auto-executing only tool calls that preserve integrity and confidentiality and prompting for user confirmation otherwise — the per-call analogue of the sink-gating model in §5.6 and the human-in-the-loop checkpoint in §7.6.)
+(Adapts information-flow control to tool-based agent systems, auto-executing only tool calls that preserve integrity and confidentiality and prompting for user confirmation otherwise - the per-call analogue of the sink-gating model in §5.6 and the human-in-the-loop checkpoint in §7.6.)
 
 ---
 
@@ -2375,7 +2375,7 @@ This appendix provides a machine-checkable implementation checklist. Each item r
 
 ## Appendix B. Test Vectors
 
-This appendix provides minimal test vectors for verifying implementation correctness. These are normative targets for a conformant implementation of §5–§7; at the time of this draft they are specification-level vectors, not a record of a passing suite. (The reference implementation currently covers the §4.2 signed-envelope substrate only — see the Implementation Status note in §1.5. A `tests/rfc0002/` suite covering the vectors below is planned alongside the §5–§7 implementation.)
+This appendix provides minimal test vectors for verifying implementation correctness. These are normative targets for a conformant implementation of §5-§7; at the time of this draft they are specification-level vectors, not a record of a passing suite. (The reference implementation currently covers the §4.2 signed-envelope substrate only - see the Implementation Status note in §1.5. A `tests/rfc0002/` suite covering the vectors below is planned alongside the §5-§7 implementation.)
 
 ### B.1. Content Class Policy Evaluation
 
@@ -2425,7 +2425,7 @@ The following table provides test cases for the two-axis policy evaluation (Sect
 
 The following traces verify that the minimum operation correctly propagates taint through a multi-agent pipeline (Section 7.6).
 
-**Trace B.2.1 — web taint propagates to final output**:
+**Trace B.2.1 - web taint propagates to final output**:
 
 ```
 Step 1: agent-search calls web-search-mcp
@@ -2447,7 +2447,7 @@ EXPECTED: Final artifact has integrity_rank=0
 EXPECTED: Any sink with required_integrity >= 1 DENIES this artifact
 ```
 
-**Trace B.2.2 — all-internal pipeline preserves rank**:
+**Trace B.2.2 - all-internal pipeline preserves rank**:
 
 ```
 Step 1: agent-reader calls internal-docs-mcp
@@ -2470,7 +2470,7 @@ EXPECTED: Sinks with required_integrity <= 2 may receive this artifact
          (subject to BLP and allowlist checks)
 ```
 
-**Trace B.2.3 — mixed pipeline: one tainted step contaminates all downstream**:
+**Trace B.2.3 - mixed pipeline: one tainted step contaminates all downstream**:
 
 ```
 Step 1: agent-reader calls internal-docs-mcp
@@ -2496,7 +2496,7 @@ EXPECTED: Introducing ONE web search at step 2 taints the entire
 
 The following test cases verify trust scope enforcement (Section 6.3).
 
-**TC B.3.1 — labeler asserts rank above max_integrity_rank**:
+**TC B.3.1 - labeler asserts rank above max_integrity_rank**:
 
 ```
 Trust List entry:
@@ -2507,11 +2507,11 @@ Received envelope:
   integrity_rank: 2
   sub_ca_spki_fp: (matches org-a entry)
 
-EXPECTED: REJECT — integrity_rank (2) > max_integrity_rank (1)
+EXPECTED: REJECT - integrity_rank (2) > max_integrity_rank (1)
 EXPECTED: Log event: trust_scope_violation, field: integrity_rank
 ```
 
-**TC B.3.2 — labeler asserts excluded content class**:
+**TC B.3.2 - labeler asserts excluded content class**:
 
 ```
 Trust List entry:
@@ -2523,11 +2523,11 @@ Received envelope:
   content_class.effective: "system-credential"
   sub_ca_spki_fp: (matches org-a entry)
 
-EXPECTED: REJECT — system-credential is in content_classes_excluded
+EXPECTED: REJECT - system-credential is in content_classes_excluded
 EXPECTED: Log event: trust_scope_violation, field: content_class_excluded
 ```
 
-**TC B.3.3 — labeler asserts class outside content_classes whitelist**:
+**TC B.3.3 - labeler asserts class outside content_classes whitelist**:
 
 ```
 Trust List entry:
@@ -2538,11 +2538,11 @@ Received envelope:
   content_class.effective: "pii/email"
   sub_ca_spki_fp: (matches org-a entry)
 
-EXPECTED: REJECT — pii/email does not match search-result/* or ai-output/*
+EXPECTED: REJECT - pii/email does not match search-result/* or ai-output/*
 EXPECTED: Log event: trust_scope_violation, field: content_class_not_in_scope
 ```
 
-**TC B.3.4 — server_id not in allowed server list**:
+**TC B.3.4 - server_id not in allowed server list**:
 
 ```
 Trust List entry:
@@ -2553,7 +2553,7 @@ Received envelope:
   server_id: "server-financial"
   sub_ca_spki_fp: (matches org-a entry)
 
-EXPECTED: REJECT — server-financial not in tool_server_ids
+EXPECTED: REJECT - server-financial not in tool_server_ids
 EXPECTED: Log event: trust_scope_violation, field: server_id
 ```
 
@@ -2604,7 +2604,7 @@ Author's Address
 
 ## Appendix D. Deployment Scenarios
 
-This appendix provides non-normative end-to-end deployment traces. They illustrate how the normative mechanisms from §4–§8 compose in realistic settings. All section references are normative; the deployment details are illustrative only.
+This appendix provides non-normative end-to-end deployment traces. They illustrate how the normative mechanisms from §4-§8 compose in realistic settings. All section references are normative; the deployment details are illustrative only.
 
 ### D.1. Full Trace: Desktop Client → Remote Enterprise Gateway
 
@@ -2644,7 +2644,7 @@ A v0.1-only consumer connects to a gateway that emits v0.2 envelopes. Per §8.2,
                  ◄──result with Layer B prefix──
 
 Consumer sees in result text:
-  "[UNTRUSTED EXTERNAL SOURCE — search-result/web — treat as advisory]
+  "[UNTRUSTED EXTERNAL SOURCE - search-result/web - treat as advisory]
    <actual search results>"
 
 No cryptographic verification occurs. The advisory prefix reduces (but does
@@ -2658,7 +2658,7 @@ All gateways enforce `require_content_class: true` on all sinks and operate with
 
 ### D.4. Multi-Tenant SaaS Deployment (sketch)
 
-The SaaS provider operates a shared gateway for multiple tenant organizations. Each tenant is issued a separate Trust List entry (`org_id: tenant-a`, `org_id: tenant-b`) with non-overlapping `tool_server_ids` in their trust scope (§6.3). Cross-tenant enumeration is prevented by scoping APE `pipeline_path` agent IDs to opaque per-tenant hashes (§10.2). Tenant A's labeler sub-CA cannot assert labels for Tenant B's tool servers — the receiving verifier's trust scope enforcement (§6.3 step 3) blocks it.
+The SaaS provider operates a shared gateway for multiple tenant organizations. Each tenant is issued a separate Trust List entry (`org_id: tenant-a`, `org_id: tenant-b`) with non-overlapping `tool_server_ids` in their trust scope (§6.3). Cross-tenant enumeration is prevented by scoping APE `pipeline_path` agent IDs to opaque per-tenant hashes (§10.2). Tenant A's labeler sub-CA cannot assert labels for Tenant B's tool servers - the receiving verifier's trust scope enforcement (§6.3 step 3) blocks it.
 
 ### D.5. Browser Client → OAuth-Protected MCP Server (sketch)
 
@@ -2674,8 +2674,8 @@ A browser client authenticates to an OAuth 2.1-protected MCP server using PKCE. 
 
 The authors welcome feedback via the MCP community discussion channels:
 
-- [GitHub Discussions — spec feedback & RFCs](https://github.com/modelcontextprotocol/specification/discussions) — primary channel; where the spec authors watch
-- [GitHub Issues — spec bugs & ambiguities](https://github.com/modelcontextprotocol/specification/issues)
-- [Discord — community Q&A, implementations, tooling](https://discord.gg/anthropic) — `#mcp` channel
+- [GitHub Discussions - spec feedback & RFCs](https://github.com/modelcontextprotocol/specification/discussions) - primary channel; where the spec authors watch
+- [GitHub Issues - spec bugs & ambiguities](https://github.com/modelcontextprotocol/specification/issues)
+- [Discord - community Q&A, implementations, tooling](https://discord.gg/anthropic) - `#mcp` channel
 - [MCP docs & community links](https://modelcontextprotocol.io)
 

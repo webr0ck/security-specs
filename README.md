@@ -15,8 +15,8 @@ A citation that points at nothing is worse than no citation.
 
 | ID | Title | Status | Implemented? |
 |---|---|---|---|
-| [SPEC-0001](specs/0001-mcp-signed-trust-envelope.md) | Signed Trust-Envelope for MCP Tool Results | Draft v0.3.2 — appsec-reviewed | **Yes** — reference implementation and conformance suite below |
-| [SPEC-0002](specs/0002-mcp-content-classification-federated-trust-ai-provenance.md) | Content Classification, Federated Trust, and Universal AI Provenance | Community Draft v0.3 | **Partly** — §4.2 only; §5, §6, §7 are specified, not built |
+| [SPEC-0001](specs/0001-mcp-signed-trust-envelope.md) | Signed Trust-Envelope for MCP Tool Results | Draft v0.3.2 - appsec-reviewed | **Yes** - reference implementation and conformance suite below |
+| [SPEC-0002](specs/0002-mcp-content-classification-federated-trust-ai-provenance.md) | Content Classification, Federated Trust, and Universal AI Provenance | Community Draft v0.3 | **Partly** - §4.2 only; §5, §6, §7 are specified, not built |
 
 ## Reference implementation
 
@@ -43,7 +43,7 @@ An independent verifier, usable without the gateway, is published as
 [`mcp-envelope-harness`](https://github.com/webr0ck/mcp-envelope-harness) is a
 separate repository holding the end-to-end tests, including a two-arm
 control/protected prompt-injection experiment. Read its caveats section before
-citing its result — the sample size is one.
+citing its result - the sample size is one.
 
 ## Scope
 
@@ -59,6 +59,6 @@ A specification that nobody has attacked has not been reviewed.
 ## Licence
 
 Documents in this repository are licensed
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — quote them, implement
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) - quote them, implement
 them, fork them, with attribution. Code in the reference implementation is MIT
 and licensed separately in its own repository.
